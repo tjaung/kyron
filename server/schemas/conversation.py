@@ -60,3 +60,20 @@ ConversationEvent = Annotated[Union[
     TranscriptStarted, TranscriptWord, TranscriptCompleted, SimulatedAction,
     ConversationEnded, ReplayCompleted,
 ], Field(discriminator="type")]
+
+
+class ConversationSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    name: str
+    status: str
+    start_time: AwareDatetime
+    end_time: AwareDatetime | None
+    practice_id: UUID
+    patient_practice_id: UUID | None
+    prescription_id: UUID | None
+
+
+class ConversationPage(BaseModel):
+    items: list[ConversationSummary]
+    total: int

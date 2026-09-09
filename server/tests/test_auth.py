@@ -93,6 +93,74 @@ class AuthTests(unittest.TestCase):
             state = self.client.get(self.harbor + '/simulations/status').json()
             self.assertEqual(state, {'status': 'busy'})
 
+    def test_conversation_listing_requires_auth_and_is_scoped_and_paginated(self):
+        from server.app.crud.conversations import create_conversation
+        from server.schemas.conversation import ConversationCreate
+        self.assertEqual(self.client.get(self.harbor + '/conversations').status_code, 401)
+        records = {}
+        for practice in self.session.scalars(select(Practice)):
+            source = self.session.scalar(select(SimulationConversation).where(
+                SimulationConversation.transcript['metadata']['practice_id'].astext == str(practice.practice_id)))
+            metadata = {key: source.transcript['metadata'][key]
+                        for key in ('practice_id', 'patient_practice_id', 'prescription_id')}
+            record = create_conversation(self.session, ConversationCreate(**metadata,
+                source_conversation_id=source.conversation_id, start_time=datetime.now(timezone.utc)))
+            records[practice.name] = str(record.id)
+        self.session.flush()
+        self.login()
+        self.assertEqual(self.client.get(self.cedar + '/conversations').status_code, 403)
+        response = self.client.get(self.harbor + '/conversations?limit=100')
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.headers['cache-control'], 'no-store')
+        body = response.json()
+        ids = [row['id'] for row in body['items']]
+        self.assertIn(records['Harbor Family Practice'], ids)
+        self.assertNotIn(records['Cedar Primary Care'], ids)
+        practice_id = self.client.get(self.harbor).json()['practice_id']
+        self.assertTrue(all(row['practice_id'] == practice_id for row in body['items']))
+        first = self.client.get(self.harbor + '/conversations?limit=1').json()
+        self.assertEqual(first['total'], body['total'])
+        self.assertEqual(first['items'], body['items'][:1])
+        second = self.client.get(self.harbor + '/conversations?limit=1&offset=1').json()
+        self.assertEqual(second['items'], body['items'][1:2])
+        self.assertEqual(self.client.get(self.harbor + '/conversations?limit=0').status_code, 422)
+        self.assertEqual(self.client.get(self.harbor + '/conversations?offset=-1').status_code, 422)
+
+    def test_directories_are_scoped_paginated_and_require_auth(self):
+        from datetime import date
+        from server.models.context import Patient, PatientPractice
+        for resource in ('patients', 'providers'):
+            self.assertEqual(self.client.get(self.harbor + '/' + resource).status_code, 401)
+        unlinked_patient = Patient(patient_id=uuid4(), first_name='Unlinked', last_name='Patient',
+                                   date_of_birth=date(1990, 1, 1))
+        unlinked_provider = Provider(provider_id=uuid4(), first_name='Unlinked', last_name='Provider')
+        self.session.add_all([unlinked_patient, unlinked_provider])
+        self.session.flush()
+        for base in (self.harbor, self.cedar):
+            self.login(base=base)
+            practice_id = self.client.get(base).json()['practice_id']
+            from uuid import UUID
+            tenant = UUID(practice_id)
+            expected_patients = set(self.session.scalars(select(PatientPractice.patient_id).where(
+                PatientPractice.practice_id == tenant)))
+            expected_providers = set(self.session.scalars(select(ProviderPractice.provider_id).where(
+                ProviderPractice.practice_id == tenant)))
+            for resource, expected, id_key in (('patients', expected_patients, 'patient_id'),
+                                               ('providers', expected_providers, 'provider_id')):
+                response = self.client.get(base + '/' + resource + '?limit=100')
+                self.assertEqual(response.status_code, 200, response.text)
+                self.assertEqual(response.headers['cache-control'], 'no-store')
+                body = response.json()
+                self.assertEqual({row[id_key] for row in body['items']}, {str(value) for value in expected})
+                self.assertEqual(body['total'], len(expected))
+                limited = self.client.get(base + '/' + resource + '?limit=1&offset=1').json()
+                self.assertEqual(limited['items'], body['items'][1:2])
+                self.assertEqual(limited['total'], body['total'])
+                self.assertEqual(self.client.get(base + '/' + resource + '?limit=101').status_code, 422)
+                self.assertEqual(self.client.get(base + '/' + resource + '?offset=-1').status_code, 422)
+                other = self.cedar if base == self.harbor else self.harbor
+                self.assertEqual(self.client.get(other + '/' + resource).status_code, 403)
+
     def test_tampered_and_expired_tokens_are_rejected(self):
         self.login()
         valid = self.client.cookies.get(COOKIE_NAME)

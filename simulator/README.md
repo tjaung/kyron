@@ -11,7 +11,7 @@ A background Python app that waits for an HTTP trigger and replays a stored conv
 
 ## Run
 
-The full stack runs with `docker compose up --build -d --wait` from the repository root. Open [localhost:8000](http://localhost:8000) for the trigger button and live transcript. Compose seeds five scenarios, each with three linked calls.
+The full stack runs with `docker compose up --build -d --wait` from the repository root. Open [localhost:5173](http://localhost:5173) for provider login. Simulation APIs are now practice-scoped; see [server authentication](../server/README.md#provider-authentication). Compose seeds five scenarios, each with three linked calls.
 
 For running this app outside Docker, use Python 3.10+ and PostgreSQL. The FastAPI server in `server/` implements the contract below.
 
@@ -45,7 +45,7 @@ PY
 python -m simulator.main
 ```
 
-The listener defaults to `127.0.0.1:8090`; use `--host` and `--port` to configure it. It is an internal trigger listener with no authentication. `SERVER_TOKEN`, when set, is sent as a bearer token to the receiving server. Environment variables are read directly; `.env` files are not loaded automatically.
+The listener defaults to `127.0.0.1:8090`; use `--host` and `--port` to configure it. It is an internal trigger listener with no authentication. `SERVER_TOKEN` is sent as a bearer token to the receiving server and must match the server’s `SIMULATOR_TOKEN`. Compose configures both from the root `.env`. Environment variables are read directly; `.env` files are not loaded automatically.
 
 From another terminal or the server:
 

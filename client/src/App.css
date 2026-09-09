@@ -1,17 +1,12 @@
 #root { width: 100%; border: 0; text-align: left; }
 .app-header { padding: 22px 32px; border-bottom: 1px solid hsl(var(--border)); }
-.app-header a { color: hsl(var(--foreground)); font-size: 25px; font-weight: 700; text-decoration: none; letter-spacing: -1px; }
-.app-header span { margin-left: 16px; font-size: 13px; font-weight: 400; letter-spacing: 0; color: hsl(var(--muted-foreground)); }
+.app-brand { color: hsl(var(--foreground)); font-size: 25px; font-weight: 700; text-decoration: none; letter-spacing: -1px; }
+.app-brand span { margin-left: 16px; font-size: 13px; font-weight: 400; letter-spacing: 0; color: hsl(var(--muted-foreground)); }
 .auth-shell { flex: 1; display: grid; place-items: center; padding: 48px 20px; background: hsl(var(--muted) / .45); }
 .auth-card { width: 100%; max-width: 440px; padding: 36px; border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) * 2); background: hsl(var(--card)); color: hsl(var(--card-foreground)); box-shadow: var(--shadow); }
 .auth-card h1 { font-size: 28px; line-height: 1.2; letter-spacing: -.7px; margin: 10px 0 14px; }
 .eyebrow { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: hsl(var(--muted-foreground)); }
 .muted { color: hsl(var(--muted-foreground)); font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
-.auth-card label { display: block; font-size: 13px; font-weight: 500; margin: 20px 0 8px; }
-.auth-card input, .auth-card select { width: 100%; padding: 11px 12px; border: 1px solid hsl(var(--input)); border-radius: var(--radius); background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 14px; }
-.auth-card button { width: 100%; margin-top: 24px; padding: 12px; border: 0; border-radius: var(--radius); background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-weight: 500; }
-.auth-card button:hover { opacity: .9; }
-.auth-card button:disabled { opacity: .6; }
 .back-link { display: block; font-size: 13px; color: hsl(var(--muted-foreground)); text-decoration: none; margin: 16px 0 24px; }
 .back-link:hover { color: hsl(var(--foreground)); }
 .error { margin-top: 16px; color: hsl(var(--destructive)); font-size: 13px; }
@@ -20,3 +15,23 @@
 .session-details dt { font-size: 11px; color: hsl(var(--muted-foreground)); margin-bottom: 5px; }
 .session-details dd { margin: 0; }
 @media (max-width: 480px) { .auth-card { padding: 26px; } .app-header { padding: 18px 22px; } }
+
+.app-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.profile-nav { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-left: auto; }
+.profile-badge { border-radius: 999px; padding: 6px 12px 6px 6px; text-align: left; }
+.profile-avatar { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-size: 12px; }
+.profile-label { display: flex; flex-direction: column; gap: 2px; }
+.profile-label strong { font-size: 12px; font-weight: 600; }
+.profile-label small { font-size: 11px; color: hsl(var(--muted-foreground)); }
+.practice-switch { font-size: 12px; color: hsl(var(--muted-foreground)); text-decoration: none; }
+.practice-shell { flex: 1; background: hsl(var(--muted) / .45); padding: 40px 32px; }
+.practice-page { max-width: 1200px; margin: auto; }
+.practice-page h1 { margin: 8px 0 28px; font-size: 30px; letter-spacing: -.8px; }
+.conversation-name { min-width: 260px; max-width: 430px; }
+.table-date { white-space: nowrap; font-variant-numeric: tabular-nums; color: hsl(var(--muted-foreground)); }
+.status-badge { display: inline-flex; padding: 3px 9px; border-radius: 999px; background: hsl(var(--secondary)); font-size: 11px; text-transform: capitalize; }
+.status-badge--live { background: hsl(var(--chart-2) / .15); color: hsl(var(--foreground)); }
+.table-error { margin: 0 0 16px; }
+@media (max-width: 640px) { .practice-shell { padding: 28px 16px; } .profile-nav { gap: 8px; } .profile-label { display: none; } .app-brand span { display: none; } .profile-badge { padding: 4px; } }
+.practice-workspace { display: flex; flex: 1; min-width: 0; }
+.practice-workspace > .practice-shell { min-width: 0; }

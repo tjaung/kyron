@@ -1,5 +1,17 @@
 # kyron assessment
 
+## Run locally
+
+```sh
+docker compose up --build -d --wait
+```
+
+Open [localhost:5173](http://localhost:5173), select a practice, and sign in at `/{practice}/auth`. The seeded username is **taylor.demo** and the password is **password**. A valid HttpOnly JWT cookie restores your session for that practice; signing out clears it. API docs remain at [localhost:8000/docs](http://localhost:8000/docs).
+
+The React client currently provides authentication and a protected practice landing page. Conversation streaming and simulation endpoints are available under `/api/practices/{practice}` with practice-scoped authentication. Local secrets are configured in the gitignored `.env`; see [auth setup](server/README.md#provider-authentication) for new checkouts.
+
+Compose starts PostgreSQL, FastAPI, the simulator, and the Vite client. Startup seeds **five named scenarios / fifteen linked calls** plus fictional practice, provider, patient, and prescription context. Existing data and used flags survive restarts. See [server setup and endpoints](server/README.md).
+
 Here is my submission for the Kyron take home assessment. Here is my initial plan:
 
 ## Part 1 — Model the Evaluation Problem
@@ -39,6 +51,7 @@ erDiagram
     "kyron.conversation_transcript"
     "kyron.conversation_analysis"
     "kyron.actions"
+    "kyron.conversation_event"
     "patients.patient"
     "patients.patient_practice"
     "providers.practice"
@@ -52,6 +65,9 @@ erDiagram
     "insurance.claims"
     "insurance.prior_authorization"
     "simulation.conversation"
+    "simulation.conversation" o|--o{ "simulation.conversation" : "next call"
+    "simulation.conversation" ||--o{ "kyron.conversation_record" : "replayed as"
+    "kyron.conversation_record" ||--o{ "kyron.conversation_event" : "stream events"
     "kyron.conversation_record" ||--o{ "kyron.conversation_transcript" : "turns"
     "kyron.conversation_record" ||--|| "kyron.conversation_analysis" : "analysis"
     "kyron.conversation_analysis" ||--o{ "kyron.actions" : "actions"
@@ -59,6 +75,7 @@ erDiagram
     "kyron.actions" o|--o| "kyron.actions" : "previous / next"
     "patients.patient" ||--o{ "patients.patient_practice" : "registrations"
     "providers.practice" ||--o{ "patients.patient_practice" : "patients"
+    "providers.practice" ||--o{ "kyron.conversation_record" : "practice calls"
     "providers.provider_practice" o|--o{ "patients.patient_practice" : "primary provider"
     "providers.practice" ||--o{ "providers.provider_practice" : "affiliations"
     "providers.provider" ||--o{ "providers.provider_practice" : "affiliations"
@@ -82,7 +99,7 @@ erDiagram
     "clinical.prescription" o|--o{ "kyron.conversation_record" : "discussed in"
 ```
 
-`||` = exactly one, `o|` = zero or one, and `o{` = zero or many. `simulation.conversation` is independent source data; replay writes runtime records into `kyron`.
+`||` = exactly one, `o|` = zero or one, and `o{` = zero or many. `simulation.conversation` stores linked source calls; each replay creates runtime records in `kyron`.
 
 ### Reading the schema definitions
 
@@ -90,12 +107,14 @@ erDiagram
 
 ### `kyron` schema
 
-Stores calls, individual speaking turns, one analysis per call, and agent actions. A call can carry patient/practice and prescription context once identified.
+Stores calls, individual speaking turns, one analysis per call, and agent actions. Every call belongs to a practice through required `practice_id` (FK → `providers.practice.practice_id`). `patient_practice_id` and `prescription_id` are nullable until identified. When populated, the registration and prescription must belong to the conversation’s practice.
 
 ```mermaid
 erDiagram
     "kyron.conversation_record" {
         UUID id PK
+        UUID source_conversation_id FK
+        UUID practice_id FK
         UUID patient_practice_id FK
         UUID prescription_id FK
     }
@@ -115,6 +134,12 @@ erDiagram
         UUID previous_action FK, UK
         UUID next_action FK, UK
     }
+    "kyron.conversation_event" {
+        BIGINT id PK
+        UUID conversation_record_id FK
+        INTEGER sequence
+    }
+    "kyron.conversation_record" ||--o{ "kyron.conversation_event" : "stream events"
     "kyron.conversation_record" ||--o{ "kyron.conversation_transcript" : "turns"
     "kyron.conversation_record" ||--|| "kyron.conversation_analysis" : "analysis"
     "kyron.conversation_analysis" ||--o{ "kyron.actions" : "actions"
@@ -126,8 +151,12 @@ erDiagram
 
 | Type | Columns |
 | --- | --- |
-| `UUID` | `id` (PK)<br>`patient_practice_id` (FK)<br>`prescription_id` (FK) |
+| `UUID` | `id` (PK)<br>`source_conversation_id` (FK)<br>`practice_id` (FK)<br>`patient_practice_id` (FK)<br>`prescription_id` (FK) |
 | `TIMESTAMPTZ` | `start_time`<br>`end_time` |
+| `TEXT` | `name`, `status` |
+| `INTEGER` | `last_sequence` |
+
+`source_conversation_id` references `simulation.conversation.conversation_id`. `status` progresses from `live` to `ended` to `completed`; `last_sequence` enforces ordered events.
 
 #### `kyron.conversation_transcript`
 
@@ -135,6 +164,7 @@ erDiagram
 | --- | --- |
 | `UUID` | `transcript_id` (PK)<br>`conversation_record_id` (FK)<br>`action` (FK, UK) |
 | `TEXT` | `speaker`<br>`transcript` |
+| `INTEGER` | `turn_index`, `last_word_index` |
 | `TIMESTAMPTZ` | `start_time`<br>`end_time` |
 
 #### `kyron.conversation_analysis`
@@ -152,7 +182,18 @@ erDiagram
 | `TEXT` | `action`<br>`reason` |
 | `BOOLEAN` | `is_completed` |
 
-Create each conversation and its analysis together. `is_completed` defaults to false. Call context, unfinished end times, and analysis results not yet assessed are nullable. An action always belongs to an analysis; its transcript link is nullable for actions after the call. `conversation_transcript.action` and `actions.transcript_id` are reciprocal unique links. `previous_action` and `next_action` are nullable unique links to `actions.action_id`.
+#### `kyron.conversation_event`
+
+| Type | Columns |
+| --- | --- |
+| `BIGINT` | `id` (PK, generated) |
+| `UUID` | `conversation_record_id` (FK) |
+| `INTEGER` | `sequence` |
+| `JSONB` | `data` |
+
+This append-only event log drives browser SSE and restores the transcript after refresh. (`conversation_record_id`, `sequence`) is unique. Sequence 0 stores creation metadata; subsequent events start at 1. The global `id` is the SSE resume cursor.
+
+Create each conversation and its analysis together. `is_completed` defaults to false. Patient/prescription context, unfinished end times, and analysis results not yet assessed are nullable; `practice_id` is required. An action always belongs to an analysis; its transcript link is nullable for actions after the call. `conversation_transcript.action` and `actions.transcript_id` are reciprocal unique links. `previous_action` and `next_action` are nullable unique links to `actions.action_id`.
 
 ### `patients` schema
 
@@ -373,20 +414,24 @@ Stores complete source conversations for replay in a single table. The harness s
 erDiagram
     "simulation.conversation" {
         UUID conversation_id PK
-        TEXT transcript
+        TEXT name
+        UUID next_conversation FK
+        JSONB transcript
         BOOLEAN is_used
     }
+    "simulation.conversation" o|--o{ "simulation.conversation" : "next call"
 ```
 
 #### `simulation.conversation`
 
 | Type | Columns |
 | --- | --- |
-| `UUID` | `conversation_id` (PK) |
-| `TEXT` | `transcript` |
+| `UUID` | `conversation_id` (PK)<br>`next_conversation` (FK, nullable) |
+| `TEXT` | `name` |
+| `JSONB` | `transcript` |
 | `BOOLEAN` | `is_used` |
 
-`transcript` is required text containing speaker labels and replay timing. `is_used` is required and defaults to false. `conversation_id` is independent of `kyron.conversation_record.id`; this table has no foreign keys.
+`transcript` is a required JSON object containing `metadata` (practice, patient registration, and prescription links), ordered `turns` (speaker, text, pauses, word timing, and at most one action per turn), and `after_call_actions`. Links inside JSON are validated by the receiving server, not database foreign keys. `is_used` is required and defaults to false. `conversation_id` is the source ID; runtime calls have their own `kyron.conversation_record.id`. `next_conversation` references another `simulation.conversation.conversation_id`. Random selection excludes follow-up rows; replay follows the links until null and rejects cycles. Each completed call commits its used flag separately. The `name` identifies the scenario and call stage. See the [payload example](simulator/example_conversation.json) and [simulator setup](simulator/README.md).
 
 ### Data integrity
 
@@ -414,3 +459,7 @@ The dashboard will feature a table that shows the conversation history, but also
 Here is the part that's important. I need some kind of analysis of a conversation and the actions taken. I think after a call is completed, I will need to runs some analysis of it. I need to understand the goal, reasons, and next actions. The next actions will be from a predefined list of actions. I think what I'm going to do is im going to run the transcript through an LLM to evaluate this. It will extract the goal, reason, and next action. What it wont know, is some ground truth. I am modeling this as some predefined steps, and if the AI does not get that right, it should be flagged as a wrong case. Wrong cases will have some visual indicator in the row. Since this is just for the one workflow, I will only make this app work for this.
 
 I will use AI assisted coding for this because I only have 8 hours. Otherwise I would only be able to do the simulation and some server in time.
+
+## Simulator app
+
+The background Python app in [`simulator/`](simulator/README.md) waits for `POST /trigger`, locks a random unused starting conversation, creates the server conversation with metadata, and streams words and simulated actions in order. It then follows `next_conversation` links using specific-ID lookup. `GET /status` reports the active call and completed calls. It marks each source used only after the server acknowledges that call’s full replay.
