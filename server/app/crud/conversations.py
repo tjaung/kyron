@@ -143,8 +143,11 @@ def append_event(session, conversation_id, event):
                                   sequence=event.sequence, data=data))
 
 
-def events_after(session, cursor):
-    rows = session.scalars(select(ConversationEvent).where(
+def events_after(session, cursor, practice_id):
+    rows = session.scalars(select(ConversationEvent).join(
+        ConversationRecord, ConversationRecord.id == ConversationEvent.conversation_record_id,
+    ).where(
         ConversationEvent.id > cursor,
+        ConversationRecord.practice_id == practice_id,
     ).order_by(ConversationEvent.id).limit(500))
     return [{"id": row.id, "data": row.data} for row in rows]

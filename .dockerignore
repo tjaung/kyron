@@ -5,3 +5,5 @@
 .env
 .groupedtimelineinclude
 artifacts
+**/node_modules
+**/dist

@@ -6,9 +6,9 @@ Run the full stack from the repository root:
 docker compose up --build -d --wait
 ```
 
-Open [http://localhost:8000](http://localhost:8000). Click **Simulate random conversation**, or choose a named scenario and run it. The page receives metadata first, then each word and scripted action through SSE. The next linked call starts automatically. Refreshing reconstructs the saved stream; reconnecting resumes from `Last-Event-ID`.
+Open [http://localhost:5173](http://localhost:5173), choose a practice, and sign in as **taylor.demo** with password **password**. The React client currently provides authentication and a protected practice landing page. The simulation and SSE APIs remain available to the authenticated practice; the legacy static demo page is no longer served.
 
-Only FastAPI is exposed to the host, on loopback port 8000. PostgreSQL and the simulator communicate on Compose's internal network. Set `SERVER_PORT=8001` before starting Compose if port 8000 is occupied. The credentials in Compose are for this local demo.
+FastAPI and the Vite client are exposed on loopback ports 8000 and 5173. PostgreSQL and the simulator communicate on Compose's internal network. Set `SERVER_PORT=8001` before starting Compose if port 8000 is occupied. The credentials in Compose are for this local demo.
 
 ## Structure
 
@@ -19,9 +19,10 @@ server/
   schemas/         validated request and event contracts
   app/
     main.py        lifespan, routes, static page
-    api/           conversations, simulations, SSE
+    api/           auth, conversations, simulations, SSE
+    services/      JWT login and tenant authorization
     crud/          persistence and event ordering
-    static/        HTML, CSS, and browser JavaScript
+    static/        legacy demo assets (not served)
   data/            fictional context and linked source conversations
   tests/           PostgreSQL-backed API tests
 ```
@@ -30,7 +31,7 @@ server/
 
 | Method / path | Behavior |
 | --- | --- |
-| `GET /` | Live conversation page. |
+| `GET /` | Redirect to the React provider portal. |
 | `GET /health` | PostgreSQL connectivity check. |
 | `GET /docs` | Interactive OpenAPI documentation. |
 | `GET /api/simulations` | Five scenario starting points and their used flags. |
@@ -41,7 +42,7 @@ server/
 | `POST /api/conversations/{id}/events` | Persist ordered word, turn, action, and completion events. |
 | `GET /api/events` | Stream persisted events to the browser using SSE. |
 
-The simulator uses `SERVER_URL=http://server:8000/api`; the API forwards triggers to `http://simulator:8090`. Triggering returns `202`; another active replay returns `409`. Used specific calls return `409`. An exhausted random selection reports `empty` through the status endpoint.
+The simulator uses `SERVER_URL=http://server:8000/api`; the API forwards triggers to `http://simulator:8090`. Triggering returns `202`; another active replay returns `409`. Used specific calls return `409`. An exhausted random selection returns `409`.
 
 ## Seed scenarios
 
@@ -80,6 +81,41 @@ docker compose down
 
 Tests roll back their runtime records. The Compose volume retains seeded and runtime data when services stop. A fresh volume receives the seed automatically.
 
-The browser was also checked with headless Chrome for button triggering, word growth, all three linked calls, metadata display, refresh recovery, and a narrow viewport.
+Browser checks cover practice selection, login, automatic session restoration, cross-practice rejection, logout, and a narrow viewport. The underlying replay was previously verified end to end with all three linked calls.
 
 Implementation references: [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/), [SQLAlchemy declarative models](https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html), [Compose health dependencies](https://docs.docker.com/compose/how-tos/startup-order/).
+
+## Provider authentication
+
+The React client at **http://localhost:5173** is now the entry point; `GET /` redirects there. Choose a practice, then sign in at `/{practice}/auth`. The initial protected page displays the provider and practice with a sign-out button.
+
+Credentials follow the requested demo convention: `lower(firstname.lastname)` and password **password**. The seed provider is **taylor.demo** at both Harbor Family Practice and Cedar Primary Care. Login verifies the `providers.provider_practice` affiliation. Practice slugs are derived from their names; ambiguous or unknown slugs are rejected.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/practices` | Public practice dropdown. |
+| `GET /api/practices/{practice}` | Public practice name and slug. |
+| `POST /api/practices/{practice}/auth/login` | JSON `{username, password}`; sets session cookie. |
+| `GET /api/practices/{practice}/auth/me` | Verify cookie, provider membership, and selected practice. |
+| `POST /api/practices/{practice}/auth/logout` | Delete the session cookie, including if expired. |
+
+The `kyron_session` cookie is HttpOnly, SameSite=Lax, and expires after eight hours. It contains an HS256 JWT with provider ID, practice ID, issuer, audience, and expiry. No token is returned in the JSON response. Set `COOKIE_SECURE=true` when serving over HTTPS. Logout deletes the browser cookie; this simple stateless implementation does not keep a token revocation list or refresh tokens.
+
+Simulation and SSE routes now live under `/api/practices/{practice}` and require the matching cookie. Queries filter by practice, specific triggers validate the entire linked call chain, and status does not expose another practice’s call details. Old unscoped read/trigger endpoints are removed. Ingestion at `/api/conversations` requires the separate simulator bearer token, which is configured only on the server and simulator.
+
+Compose reads `JWT_SECRET` and `SIMULATOR_TOKEN` from the gitignored root `.env`. They have been generated for this workspace. On a new checkout, generate them once before starting Compose:
+
+```sh
+python3 - <<'PY'
+from pathlib import Path
+import secrets
+path = Path('.env')
+if not path.exists():
+    path.write_text(''.join(f'{name}={secrets.token_urlsafe(48)}\n' for name in ('JWT_SECRET', 'SIMULATOR_TOKEN')))
+    path.chmod(0o600)
+PY
+```
+
+For a server outside Compose, export these variables and set the simulator's `SERVER_TOKEN` to the same value as `SIMULATOR_TOKEN`. `CLIENT_URL` defaults to `http://localhost:5173` and allows that origin for cookie-authenticated POSTs. Without `JWT_SECRET`, a standalone server generates a process-local key, so restarts invalidate sessions.
+
+References: [FastAPI cookies](https://fastapi.tiangolo.com/advanced/response-cookies/) and [JWT validation](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/).

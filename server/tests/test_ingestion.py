@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from server.app.main import app
 from server.core.database import engine, get_session
+from server.core.config import settings
 from server.core.seed import initialize_database, seed
 from server.models.context import Practice
 from server.models.conversation import Action, ConversationEvent, ConversationRecord, ConversationTranscript
@@ -26,7 +27,7 @@ class IngestionTests(unittest.TestCase):
         self.transaction = self.connection.begin()
         self.session = Session(bind=self.connection)
         app.dependency_overrides[get_session] = lambda: self.session
-        self.client = TestClient(app)
+        self.client = TestClient(app, headers={"Authorization": f"Bearer {settings.simulator_token}"})
         self.source = self.session.scalar(select(SimulationConversation).order_by(SimulationConversation.name))
         links = self.source.transcript["metadata"]
         self.metadata = {key: links[key] for key in ("practice_id", "patient_practice_id", "prescription_id")}
