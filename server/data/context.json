@@ -1,0 +1,68 @@
+{
+  "practices": [
+    {
+      "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+      "name": "Harbor Family Practice",
+      "address": "100 Example Avenue, Demo City",
+      "specialty": "Primary care"
+    },
+    {
+      "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+      "name": "Cedar Primary Care",
+      "address": "200 Example Street, Demo City",
+      "specialty": "Primary care"
+    }
+  ],
+  "patients": [
+    {
+      "patient_id": "40e59989-2cad-56d8-8d5c-746215f2c840",
+      "first_name": "Avery",
+      "last_name": "Chen",
+      "date_of_birth": "1980-04-12",
+      "patient_practice_id": "9024db8c-fb80-57e2-93fc-2de4a634a2ad",
+      "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+      "prescription_id": "6da9e49b-9a61-5fba-8f08-1e20b105d5e4",
+      "medication_name": "maintenance prescription"
+    },
+    {
+      "patient_id": "0c811784-a275-5684-9a77-71dfe8c13171",
+      "first_name": "Jordan",
+      "last_name": "Patel",
+      "date_of_birth": "1981-04-12",
+      "patient_practice_id": "4d8fdf09-a4b0-5082-9b67-ea5825692448",
+      "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+      "prescription_id": "316bd9c3-3fca-53d5-9fdd-0fd59e7e03df",
+      "medication_name": "existing specialty prescription"
+    },
+    {
+      "patient_id": "85370ed3-488b-5c9e-80b7-220d9f8c9c29",
+      "first_name": "Morgan",
+      "last_name": "Ellis",
+      "date_of_birth": "1982-04-12",
+      "patient_practice_id": "d6ebd2d2-2a33-5da9-841f-e05211e89407",
+      "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+      "prescription_id": "23ca8c1f-0539-5f5c-bf8f-8df09e59ae97",
+      "medication_name": "renewal prescription"
+    },
+    {
+      "patient_id": "3ea0de00-7dde-5a50-8481-44eaa46654b2",
+      "first_name": "Casey",
+      "last_name": "Rivera",
+      "date_of_birth": "1983-04-12",
+      "patient_practice_id": "474ce4c9-4a65-5008-b7d7-00fa4240be6f",
+      "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+      "prescription_id": "d5395083-f89c-5eab-ba5d-e27a5bfebbd3",
+      "medication_name": "ongoing prescription"
+    },
+    {
+      "patient_id": "c97ac356-b966-5fc7-ada9-8671d4424449",
+      "first_name": "Riley",
+      "last_name": "Brooks",
+      "date_of_birth": "1984-04-12",
+      "patient_practice_id": "9a7a1140-22a0-57c6-a974-e3eab3529d76",
+      "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+      "prescription_id": "7029a7f0-72be-5929-990b-fd62cb343bdc",
+      "medication_name": "regular prescription"
+    }
+  ]
+}

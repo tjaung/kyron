@@ -1,0 +1,1130 @@
+[
+  {
+    "conversation_id": "db1f1c10-6399-5cc8-9c0d-5f4516a81a8b",
+    "name": "Routine refill — authorization approved · 1. Patient refill request",
+    "next_conversation": "171c7cf1-0df7-551f-9357-534cd8eee219",
+    "transcript": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_practice_id": "9024db8c-fb80-57e2-93fc-2de4a634a2ad",
+        "prescription_id": "6da9e49b-9a61-5fba-8f08-1e20b105d5e4",
+        "scenario_name": "Routine refill — authorization approved"
+      },
+      "turns": [
+        {
+          "speaker": "patient",
+          "transcript": "Hi, this is Avery Chen. My pharmacy says my usual refill needs insurance approval.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thanks, Avery. I have your prescription record from Harbor Family Practice. Is this the same pharmacy you used last time?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "Yes, nothing has changed. They told me the prescription is on hold.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I will contact the insurance team to check the authorization and call you back with an update.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65,
+          "action": {
+            "action": "review_prescription_record",
+            "reason": "Confirm the existing patient and prescription context.",
+            "after_word": 4
+          }
+        }
+      ],
+      "after_call_actions": [
+        {
+          "action": "call_insurance",
+          "reason": "The refill is on hold pending an authorization check."
+        }
+      ],
+      "ground_truth": {
+        "scenario": "routine-refill",
+        "call_number": 1,
+        "expected_next_action": "call_insurance"
+      }
+    }
+  },
+  {
+    "conversation_id": "171c7cf1-0df7-551f-9357-534cd8eee219",
+    "name": "Routine refill — authorization approved · 2. Insurance authorization call",
+    "next_conversation": "4d7ae763-4c35-5978-a919-8249686a5236",
+    "transcript": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_practice_id": "9024db8c-fb80-57e2-93fc-2de4a634a2ad",
+        "prescription_id": "6da9e49b-9a61-5fba-8f08-1e20b105d5e4",
+        "scenario_name": "Routine refill — authorization approved"
+      },
+      "turns": [
+        {
+          "speaker": "ai_agent",
+          "transcript": "Hi, this is Emily, the automated assistant calling from Harbor Family Practice about a prescription prior authorization. Could I speak with someone who can help?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, I can help with that. My name is Jay. Could I have your name and callback number first?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you, Jay. This is Emily, and my callback number is 202-555-0101. What practice information do you need next?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "I need the practice name and the prescribing provider’s name and identifier.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The practice is Harbor Family Practice. The provider is Taylor Demo, and the test provider identifier is DEMO-PROVIDER-001.",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Thank you. Now, could you give me the patient’s full name and date of birth?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The patient is Avery Chen, born April 12, 1980. Would you like the member ID next?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, please. The member ID and group number.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The member ID on our record is DEMO-MEMBER-001, and the group is DEMO-GROUP-01. What else do you need?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "I have the member record here. The plan is Demo Prescription HMO. What would you like me to check?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "First, can you confirm that coverage is active for this request?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, the demo record shows active coverage for this request.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you. The pharmacy has a prescription refill on hold. Could you check the prior-authorization status?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "I have located the member record. Please confirm that this request matches the existing prescription.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Yes, this is a refill of the prescription already on file. The supporting practice information is available.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "For this simulated case, the authorization is approved. The pharmacy can reprocess the claim using reference DEMO-APPROVED-101.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Just to confirm: the authorization is approved under DEMO-APPROVED-101, but the pharmacy still needs to reprocess the claim. Is that correct?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, that is correct. The pharmacy must still confirm the claim and dispensing status.",
+          "pause_before_ms": 600,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you, Jay. I have recorded the reference and will update the patient. Have a good day.",
+          "pause_before_ms": 400,
+          "word_delay_ms": 85
+        }
+      ],
+      "after_call_actions": [
+        {
+          "action": "notify_patient",
+          "reason": "The insurer confirmed approval; the patient needs the next step."
+        }
+      ],
+      "ground_truth": {
+        "scenario": "routine-refill",
+        "call_number": 2,
+        "expected_next_action": "notify_patient"
+      }
+    }
+  },
+  {
+    "conversation_id": "4d7ae763-4c35-5978-a919-8249686a5236",
+    "name": "Routine refill — authorization approved · 3. Patient approval callback",
+    "next_conversation": null,
+    "transcript": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_practice_id": "9024db8c-fb80-57e2-93fc-2de4a634a2ad",
+        "prescription_id": "6da9e49b-9a61-5fba-8f08-1e20b105d5e4",
+        "scenario_name": "Routine refill — authorization approved"
+      },
+      "turns": [
+        {
+          "speaker": "ai_agent",
+          "transcript": "Hi Avery, this is the follow-up from Harbor Family Practice. Your insurer confirmed authorization approval.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "Great. Does that mean it is ready to collect?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The pharmacy still needs to reprocess the claim and confirm it is ready. Please wait for their pickup confirmation.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "Understood. Thank you for checking and calling me back.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        }
+      ],
+      "after_call_actions": [],
+      "ground_truth": {
+        "scenario": "routine-refill",
+        "call_number": 3,
+        "expected_next_action": null
+      }
+    }
+  },
+  {
+    "conversation_id": "c39607bd-6178-5487-8333-f5f37e597bd8",
+    "name": "Missing records — authorization pending · 1. Patient reports delayed refill",
+    "next_conversation": "ac7e9bd0-f8ea-5394-a8b2-49a172dae084",
+    "transcript": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_practice_id": "4d8fdf09-a4b0-5082-9b67-ea5825692448",
+        "prescription_id": "316bd9c3-3fca-53d5-9fdd-0fd59e7e03df",
+        "scenario_name": "Missing records — authorization pending"
+      },
+      "turns": [
+        {
+          "speaker": "patient",
+          "transcript": "Hello, this is Jordan Patel. My refill has been waiting for a few days and I do not know why.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I see the prescription request. Has your pharmacy mentioned a prior authorization?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "Yes. They said they were waiting for information from my practice.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I will ask the insurer what information is missing and arrange the right follow-up with the practice.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65,
+          "action": {
+            "action": "review_prescription_record",
+            "reason": "Confirm the existing patient and prescription context.",
+            "after_word": 4
+          }
+        }
+      ],
+      "after_call_actions": [
+        {
+          "action": "call_insurance",
+          "reason": "Identify the missing information holding up the refill."
+        }
+      ],
+      "ground_truth": {
+        "scenario": "missing-records",
+        "call_number": 1,
+        "expected_next_action": "call_insurance"
+      }
+    }
+  },
+  {
+    "conversation_id": "ac7e9bd0-f8ea-5394-a8b2-49a172dae084",
+    "name": "Missing records — authorization pending · 2. Insurance requests documentation",
+    "next_conversation": "00199828-e58d-540a-bdab-e5fe27a6ce9c",
+    "transcript": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_practice_id": "4d8fdf09-a4b0-5082-9b67-ea5825692448",
+        "prescription_id": "316bd9c3-3fca-53d5-9fdd-0fd59e7e03df",
+        "scenario_name": "Missing records — authorization pending"
+      },
+      "turns": [
+        {
+          "speaker": "ai_agent",
+          "transcript": "Hi, this is Emily, the automated assistant calling from Harbor Family Practice about a prescription prior authorization. Could I speak with someone who can help?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, I can help with that. My name is Jay. Could I have your name and callback number first?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you, Jay. This is Emily, and my callback number is 202-555-0102. What practice information do you need next?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "I need the practice name and the prescribing provider’s name and identifier.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The practice is Harbor Family Practice. The provider is Taylor Demo, and the test provider identifier is DEMO-PROVIDER-001.",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Thank you. Now, could you give me the patient’s full name and date of birth?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The patient is Jordan Patel, born April 12, 1981. Would you like the member ID next?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, please. The member ID and group number.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The member ID on our record is DEMO-MEMBER-002, and the group is DEMO-GROUP-01. What else do you need?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "I have the member record here. The plan is Demo Prescription HMO. What would you like me to check?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "First, can you confirm that coverage is active for this request?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, the demo record shows active coverage for this request.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you. The pharmacy has a prescription refill on hold. Could you check the prior-authorization status?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "This simulated request is missing the prescriber’s supporting visit documentation. The status is pending, not denied.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I will route that request to the clinical team. Can you give me a reference for the pending case?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Use DEMO-PENDING-202. We will review the request after the required records arrive.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I have recorded the reference and will let the patient know that a decision has not been made.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        }
+      ],
+      "after_call_actions": [
+        {
+          "action": "request_provider_records",
+          "reason": "The clinical team must supply the missing supporting documentation."
+        }
+      ],
+      "ground_truth": {
+        "scenario": "missing-records",
+        "call_number": 2,
+        "expected_next_action": "request_provider_records"
+      }
+    }
+  },
+  {
+    "conversation_id": "00199828-e58d-540a-bdab-e5fe27a6ce9c",
+    "name": "Missing records — authorization pending · 3. Patient pending-status callback",
+    "next_conversation": null,
+    "transcript": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_practice_id": "4d8fdf09-a4b0-5082-9b67-ea5825692448",
+        "prescription_id": "316bd9c3-3fca-53d5-9fdd-0fd59e7e03df",
+        "scenario_name": "Missing records — authorization pending"
+      },
+      "turns": [
+        {
+          "speaker": "ai_agent",
+          "transcript": "Hi Jordan, the insurer is waiting for supporting records from the practice. Your request is still pending.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "So it has not been rejected?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Correct. I have flagged the documentation request for the clinical team. We cannot promise approval or a decision date yet.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "Thanks. Please let me know when there is an update.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        }
+      ],
+      "after_call_actions": [],
+      "ground_truth": {
+        "scenario": "missing-records",
+        "call_number": 3,
+        "expected_next_action": null
+      }
+    }
+  },
+  {
+    "conversation_id": "f3eeeb31-79c4-5ccf-8198-6f9fb6185910",
+    "name": "Authorization denied — clinician review · 1. Patient reports coverage denial",
+    "next_conversation": "214719d9-b2fc-5487-8f8a-729b6a71fa9f",
+    "transcript": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_practice_id": "d6ebd2d2-2a33-5da9-841f-e05211e89407",
+        "prescription_id": "23ca8c1f-0539-5f5c-bf8f-8df09e59ae97",
+        "scenario_name": "Authorization denied — clinician review"
+      },
+      "turns": [
+        {
+          "speaker": "patient",
+          "transcript": "This is Morgan Ellis. The pharmacy says my prescription renewal was denied by insurance.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I can check the status and the reason given by the insurer. Have you received a decision letter?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "Not yet. I only heard about it from the pharmacy.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I will contact the insurer and send any decision details to your clinician for review.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65,
+          "action": {
+            "action": "review_prescription_record",
+            "reason": "Confirm the existing patient and prescription context.",
+            "after_word": 4
+          }
+        }
+      ],
+      "after_call_actions": [
+        {
+          "action": "call_insurance",
+          "reason": "Confirm whether a denial exists and obtain its documented reason."
+        }
+      ],
+      "ground_truth": {
+        "scenario": "denial-review",
+        "call_number": 1,
+        "expected_next_action": "call_insurance"
+      }
+    }
+  },
+  {
+    "conversation_id": "214719d9-b2fc-5487-8f8a-729b6a71fa9f",
+    "name": "Authorization denied — clinician review · 2. Insurance explains denial",
+    "next_conversation": "3e153f05-1692-5982-95a9-9cbd9c53b62d",
+    "transcript": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_practice_id": "d6ebd2d2-2a33-5da9-841f-e05211e89407",
+        "prescription_id": "23ca8c1f-0539-5f5c-bf8f-8df09e59ae97",
+        "scenario_name": "Authorization denied — clinician review"
+      },
+      "turns": [
+        {
+          "speaker": "ai_agent",
+          "transcript": "Hi, this is Emily, the automated assistant calling from Cedar Primary Care about a prescription prior authorization. Could I speak with someone who can help?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, I can help with that. My name is Jay. Could I have your name and callback number first?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you, Jay. This is Emily, and my callback number is 202-555-0103. What practice information do you need next?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "I need the practice name and the prescribing provider’s name and identifier.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The practice is Cedar Primary Care. The provider is Taylor Demo, and the test provider identifier is DEMO-PROVIDER-001.",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Thank you. Now, could you give me the patient’s full name and date of birth?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The patient is Morgan Ellis, born April 12, 1982. Would you like the member ID next?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, please. The member ID and group number.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The member ID on our record is DEMO-MEMBER-003, and the group is DEMO-GROUP-01. What else do you need?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "I have the member record here. The plan is Demo Prescription HMO. What would you like me to check?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "First, can you confirm that coverage is active for this request?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, the demo record shows active coverage for this request.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you. The pharmacy has a prescription refill on hold. Could you check the prior-authorization status?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "In this simulated case, the request was denied because the submitted documentation did not establish the plan’s coverage criteria.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Please provide the decision reference and the route for the prescribing clinician to request a review.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "The reference is DEMO-DENIED-303. The decision letter contains the review instructions.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I will route the decision to the clinician. I am not changing the prescription or promising that a review will succeed.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        }
+      ],
+      "after_call_actions": [
+        {
+          "action": "escalate_to_clinician",
+          "reason": "A clinician must review the denial and decide on the appropriate next step."
+        }
+      ],
+      "ground_truth": {
+        "scenario": "denial-review",
+        "call_number": 2,
+        "expected_next_action": "escalate_to_clinician"
+      }
+    }
+  },
+  {
+    "conversation_id": "3e153f05-1692-5982-95a9-9cbd9c53b62d",
+    "name": "Authorization denied — clinician review · 3. Patient denial callback",
+    "next_conversation": null,
+    "transcript": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_practice_id": "d6ebd2d2-2a33-5da9-841f-e05211e89407",
+        "prescription_id": "23ca8c1f-0539-5f5c-bf8f-8df09e59ae97",
+        "scenario_name": "Authorization denied — clinician review"
+      },
+      "turns": [
+        {
+          "speaker": "ai_agent",
+          "transcript": "Hi Morgan, the insurer confirmed a denial. I have sent the decision details to your clinician for review.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "Should I ask the pharmacy for a different medication?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Your clinician needs to advise you on treatment options. I can help the practice follow up, but I cannot change the prescription.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "Okay. I will wait to hear from the clinical team.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        }
+      ],
+      "after_call_actions": [],
+      "ground_truth": {
+        "scenario": "denial-review",
+        "call_number": 3,
+        "expected_next_action": null
+      }
+    }
+  },
+  {
+    "conversation_id": "c54f332c-c47f-589e-8516-6a55c894542d",
+    "name": "Coverage mismatch — member details needed · 1. Patient refill and plan change",
+    "next_conversation": "a994d68b-7f3a-5ff0-8e9c-a9d793e6966d",
+    "transcript": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_practice_id": "474ce4c9-4a65-5008-b7d7-00fa4240be6f",
+        "prescription_id": "d5395083-f89c-5eab-ba5d-e27a5bfebbd3",
+        "scenario_name": "Coverage mismatch — member details needed"
+      },
+      "turns": [
+        {
+          "speaker": "patient",
+          "transcript": "Hi, Casey Rivera here. My refill did not go through after I changed insurance plans.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you for mentioning the change. I will check whether the coverage details on the prescription request match the insurer’s record.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "I thought the new card had already been added, but I am not sure.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I will confirm what can be verified and call you back if updated member information is needed.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65,
+          "action": {
+            "action": "review_prescription_record",
+            "reason": "Confirm the existing patient and prescription context.",
+            "after_word": 4
+          }
+        }
+      ],
+      "after_call_actions": [
+        {
+          "action": "verify_coverage",
+          "reason": "The patient reports a recent insurance change."
+        }
+      ],
+      "ground_truth": {
+        "scenario": "coverage-mismatch",
+        "call_number": 1,
+        "expected_next_action": "verify_coverage"
+      }
+    }
+  },
+  {
+    "conversation_id": "a994d68b-7f3a-5ff0-8e9c-a9d793e6966d",
+    "name": "Coverage mismatch — member details needed · 2. Insurance cannot match member",
+    "next_conversation": "2531b42e-f8e3-5615-a267-55110662a029",
+    "transcript": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_practice_id": "474ce4c9-4a65-5008-b7d7-00fa4240be6f",
+        "prescription_id": "d5395083-f89c-5eab-ba5d-e27a5bfebbd3",
+        "scenario_name": "Coverage mismatch — member details needed"
+      },
+      "turns": [
+        {
+          "speaker": "ai_agent",
+          "transcript": "Hi, this is Emily, the automated assistant calling from Cedar Primary Care about a prescription prior authorization. Could I speak with someone who can help?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, I can help with that. My name is Jay. Could I have your name and callback number first?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you, Jay. This is Emily, and my callback number is 202-555-0104. What practice information do you need next?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "I need the practice name and the prescribing provider’s name and identifier.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The practice is Cedar Primary Care. The provider is Taylor Demo, and the test provider identifier is DEMO-PROVIDER-001.",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Thank you. Now, could you give me the patient’s full name and date of birth?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The patient is Casey Rivera, born April 12, 1983. Would you like the member ID next?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, please. The member ID and group number.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The member ID on our record is DEMO-MEMBER-004, and the group is DEMO-GROUP-01. What else do you need?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "The member details supplied do not match an active record in this simulated case.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Can an authorization decision be made with these details?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "No. The updated member information is needed before we can locate the coverage and review the request.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I will request the corrected information. I will not record this as an authorization denial.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        }
+      ],
+      "after_call_actions": [
+        {
+          "action": "request_member_details",
+          "reason": "Updated coverage information is required before authorization review."
+        }
+      ],
+      "ground_truth": {
+        "scenario": "coverage-mismatch",
+        "call_number": 2,
+        "expected_next_action": "request_member_details"
+      }
+    }
+  },
+  {
+    "conversation_id": "2531b42e-f8e3-5615-a267-55110662a029",
+    "name": "Coverage mismatch — member details needed · 3. Patient coverage callback",
+    "next_conversation": null,
+    "transcript": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_practice_id": "474ce4c9-4a65-5008-b7d7-00fa4240be6f",
+        "prescription_id": "d5395083-f89c-5eab-ba5d-e27a5bfebbd3",
+        "scenario_name": "Coverage mismatch — member details needed"
+      },
+      "turns": [
+        {
+          "speaker": "ai_agent",
+          "transcript": "Hi Casey, the insurer could not match the member details on file. We need your current insurance information.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "I have a new card with a different member number.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Please provide it through the practice’s usual secure intake process. The team can update the record and retry the coverage check.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "I will do that today. Thank you for explaining what is missing.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        }
+      ],
+      "after_call_actions": [],
+      "ground_truth": {
+        "scenario": "coverage-mismatch",
+        "call_number": 3,
+        "expected_next_action": null
+      }
+    }
+  },
+  {
+    "conversation_id": "89f7b7f0-c7dd-54b7-8386-f0d5ac85fe99",
+    "name": "Time-sensitive refill — expedited review pending · 1. Patient requests urgent refill help",
+    "next_conversation": "2a5004ea-38ee-5722-8974-7623655c24cb",
+    "transcript": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_practice_id": "9a7a1140-22a0-57c6-a974-e3eab3529d76",
+        "prescription_id": "7029a7f0-72be-5929-990b-fd62cb343bdc",
+        "scenario_name": "Time-sensitive refill — expedited review pending"
+      },
+      "turns": [
+        {
+          "speaker": "patient",
+          "transcript": "This is Riley Brooks. I am nearly out of my usual prescription and the pharmacy is waiting for authorization.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I will flag the timing concern for your clinical team and check the insurer’s request status.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "Can you guarantee it will be approved today?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I cannot guarantee an insurance decision. I can communicate the concern and ask what the review process requires.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65,
+          "action": {
+            "action": "review_prescription_record",
+            "reason": "Confirm the existing patient and prescription context.",
+            "after_word": 4
+          }
+        }
+      ],
+      "after_call_actions": [
+        {
+          "action": "escalate_time_sensitive_request",
+          "reason": "The patient reports a time-sensitive refill and needs clinical follow-up."
+        }
+      ],
+      "ground_truth": {
+        "scenario": "urgent-escalation",
+        "call_number": 1,
+        "expected_next_action": "escalate_time_sensitive_request"
+      }
+    }
+  },
+  {
+    "conversation_id": "2a5004ea-38ee-5722-8974-7623655c24cb",
+    "name": "Time-sensitive refill — expedited review pending · 2. Insurance expedited-review request",
+    "next_conversation": "59d499c4-e79f-50ae-ab44-9079a82ddc10",
+    "transcript": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_practice_id": "9a7a1140-22a0-57c6-a974-e3eab3529d76",
+        "prescription_id": "7029a7f0-72be-5929-990b-fd62cb343bdc",
+        "scenario_name": "Time-sensitive refill — expedited review pending"
+      },
+      "turns": [
+        {
+          "speaker": "ai_agent",
+          "transcript": "Hi, this is Emily, the automated assistant calling from Harbor Family Practice about a prescription prior authorization. Could I speak with someone who can help?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, I can help with that. My name is Jay. Could I have your name and callback number first?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you, Jay. This is Emily, and my callback number is 202-555-0105. What practice information do you need next?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "I need the practice name and the prescribing provider’s name and identifier.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The practice is Harbor Family Practice. The provider is Taylor Demo, and the test provider identifier is DEMO-PROVIDER-001.",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Thank you. Now, could you give me the patient’s full name and date of birth?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The patient is Riley Brooks, born April 12, 1984. Would you like the member ID next?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, please. The member ID and group number.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "The member ID on our record is DEMO-MEMBER-005, and the group is DEMO-GROUP-01. What else do you need?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "I have the member record here. The plan is Demo Prescription HMO. What would you like me to check?",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "First, can you confirm that coverage is active for this request?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Yes, the demo record shows active coverage for this request.",
+          "pause_before_ms": 500,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Thank you. The pharmacy has a prescription refill on hold. Could you check the prior-authorization status?",
+          "pause_before_ms": 700,
+          "word_delay_ms": 85
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "The request is pending in this simulated case. An expedited review requires information from the prescribing team.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "I will relay that requirement to the practice. Please provide a reference for this discussion.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "insurance_agent",
+          "transcript": "Use DEMO-EXPEDITED-505. An expedited review has not been approved or completed yet. I am sorry, I have to end the call now. Thank you for calling.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Understood. I have reference DEMO-EXPEDITED-505. The review is still pending, and the clinical team needs to supply more information.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        }
+      ],
+      "after_call_actions": [
+        {
+          "action": "request_clinical_follow_up",
+          "reason": "The prescribing team must assess and supply the expedited-review information."
+        }
+      ],
+      "ground_truth": {
+        "scenario": "urgent-escalation",
+        "call_number": 2,
+        "expected_next_action": "request_clinical_follow_up"
+      }
+    }
+  },
+  {
+    "conversation_id": "59d499c4-e79f-50ae-ab44-9079a82ddc10",
+    "name": "Time-sensitive refill — expedited review pending · 3. Patient urgency callback",
+    "next_conversation": null,
+    "transcript": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_practice_id": "9a7a1140-22a0-57c6-a974-e3eab3529d76",
+        "prescription_id": "7029a7f0-72be-5929-990b-fd62cb343bdc",
+        "scenario_name": "Time-sensitive refill — expedited review pending"
+      },
+      "turns": [
+        {
+          "speaker": "ai_agent",
+          "transcript": "Hi Riley, the authorization remains pending. I have flagged your concern and the insurer’s information request for the clinical team.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "What should I do if I run out before they decide?",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "ai_agent",
+          "transcript": "Please contact your prescribing team for advice about your medication. I cannot recommend a change or promise when insurance will decide.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        },
+        {
+          "speaker": "patient",
+          "transcript": "Okay, I will contact them. Please keep me updated on the request.",
+          "pause_before_ms": 350,
+          "word_delay_ms": 65
+        }
+      ],
+      "after_call_actions": [],
+      "ground_truth": {
+        "scenario": "urgent-escalation",
+        "call_number": 3,
+        "expected_next_action": null
+      }
+    }
+  }
+]

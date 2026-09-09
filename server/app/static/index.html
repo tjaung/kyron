@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kyron · Conversation simulator</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <header><a class="brand" href="/">kyron<span> / simulation studio</span></a><span id="connection" class="badge">Connecting…</span></header>
+  <main>
+    <section class="intro"><p class="eyebrow">PRESCRIPTION WORKFLOW</p><h1>A conversation, in motion.</h1><p>Follow a patient request through insurance review and the next call. Each word arrives as the conversation happens.</p></section>
+    <section class="controls" aria-label="Simulation controls">
+      <div><label for="scenario">Scenario</label><select id="scenario"><option value="">Random unused scenario</option></select></div>
+      <button id="run" disabled>Simulate random conversation <span aria-hidden="true">→</span></button>
+      <p id="status" role="status">Connecting to the simulator…</p>
+    </section>
+    <section class="feed-heading"><h2>Conversation flow</h2><span id="count">0 calls</span></section>
+    <p id="empty" class="empty">Ready when you are. Start a simulation to see the call metadata, live transcript, and scripted actions here.</p>
+    <div id="conversations"></div>
+    <footer>Fictional demo records · Scripted actions do not execute real-world tasks. <a href="/docs">API documentation ↗</a></footer>
+  </main>
+  <template id="call-template">
+    <article class="call">
+      <div class="call-heading"><div><p class="scenario-name eyebrow"></p><h3></h3></div><span class="call-status badge live">Live</span></div>
+      <dl class="metadata"></dl>
+      <details class="ids"><summary>Record links</summary><dl></dl></details>
+      <div class="transcript" aria-label="Conversation transcript"></div>
+    </article>
+  </template>
+</body>
+</html>

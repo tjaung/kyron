@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "practice_id": "00000000-0000-4000-8000-000000000001",
+    "patient_practice_id": "00000000-0000-4000-8000-000000000002",
+    "prescription_id": "00000000-0000-4000-8000-000000000003"
+  },
+  "turns": [
+    {
+      "speaker": "patient",
+      "transcript": "Hello, I am calling about my prescription refill.",
+      "pause_before_ms": 300,
+      "word_delay_ms": 180
+    },
+    {
+      "speaker": "ai_agent",
+      "transcript": "I will check the authorization status with your insurance provider.",
+      "pause_before_ms": 800,
+      "word_delay_ms": 150,
+      "action": {
+        "action": "check_authorization_status",
+        "reason": "The patient is requesting a prescription refill.",
+        "after_word": 6
+      }
+    }
+  ],
+  "after_call_actions": [
+    {
+      "action": "call_insurance",
+      "reason": "Confirm whether authorization is needed for the refill."
+    }
+  ]
+}
