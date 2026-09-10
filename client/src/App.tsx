@@ -1,3 +1,4 @@
+import { RulesPage } from './pages/RulesPage'
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { BrowserRouter, Link, Navigate, Outlet, Route, Routes, useNavigate, useParams } from 'react-router-dom'
@@ -99,6 +100,7 @@ function PracticeLayout() {
       { label: 'Conversations', to: `${base}/conversations`, icon: <svg viewBox="0 0 24 24"><path d="M5 4h14a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9l-5 4V5a1 1 0 0 1 1-1Z" /><path d="M8 8h8M8 12h6" /></svg> },
       { label: 'Patients', to: `${base}/patients`, icon: <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21v-2a8 8 0 0 1 16 0v2" /></svg> },
       { label: 'Providers', to: `${base}/providers`, icon: <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" /><path d="M12 8v8M8 12h8" /></svg> },
+      { label: 'Rules', to: `${base}/rules`, icon: <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="5" rx="1" /><rect x="2" y="17" width="6" height="5" rx="1" /><rect x="16" y="17" width="6" height="5" rx="1" /><path d="M12 7v5M5 17v-5h14v5" /></svg> },
     ]} />
     <main className="practice-shell"><Outlet /></main>
   </div>
@@ -119,6 +121,7 @@ export default function App() {
         <Route path="conversations" element={<ConversationsPage />} />
         <Route path="patients" element={<PatientsPage />} />
         <Route path="providers" element={<ProvidersPage />} />
+        <Route path="rules" element={<RulesPage />} />
       </Route>
       <Route path="auth" element={<LoginPage />} />
     </Route>

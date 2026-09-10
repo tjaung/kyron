@@ -50,7 +50,14 @@ erDiagram
     "kyron.conversation_record"
     "kyron.conversation_transcript"
     "kyron.conversation_analysis"
+    "kyron.action_executions"
+    "kyron.action_tasks"
     "kyron.actions"
+    "kyron.rules"
+    "kyron.rule_actions"
+    "kyron.workflows"
+    "kyron.workflow_steps"
+    "kyron.workflow_runs"
     "kyron.conversation_event"
     "patients.patient"
     "patients.patient_practice"
@@ -66,13 +73,22 @@ erDiagram
     "insurance.prior_authorization"
     "simulation.conversation"
     "simulation.conversation" o|--o{ "simulation.conversation" : "next call"
-    "simulation.conversation" ||--o{ "kyron.conversation_record" : "replayed as"
+    "simulation.conversation" ||--o{ "kyron.conversation_record" : "generates"
+    "kyron.actions" ||--o{ "kyron.rule_actions" : "required action"
+    "kyron.rules" ||--o{ "kyron.rule_actions" : "checklist"
+    "kyron.workflows" ||--o{ "kyron.workflow_steps" : "graph"
+    "kyron.rules" ||--o{ "kyron.workflow_steps" : "node"
+    "kyron.workflows" ||--o{ "kyron.workflow_runs" : "executions"
+    "kyron.conversation_record" ||--o{ "kyron.workflow_runs" : "case context"
+    "kyron.actions" o|--o{ "kyron.action_executions" : "action definition"
     "kyron.conversation_record" ||--o{ "kyron.conversation_event" : "stream events"
+    "kyron.conversation_record" o|--o| "kyron.conversation_record" : "follow-up"
     "kyron.conversation_record" ||--o{ "kyron.conversation_transcript" : "turns"
     "kyron.conversation_record" ||--|| "kyron.conversation_analysis" : "analysis"
-    "kyron.conversation_analysis" ||--o{ "kyron.actions" : "actions"
-    "kyron.conversation_transcript" o|--o| "kyron.actions" : "turn action"
-    "kyron.actions" o|--o| "kyron.actions" : "previous / next"
+    "kyron.conversation_analysis" ||--o{ "kyron.action_executions" : "actions"
+    "kyron.conversation_analysis" ||--o{ "kyron.action_tasks" : "chosen plan"
+    "kyron.conversation_transcript" o|--o| "kyron.action_executions" : "turn action"
+    "kyron.action_executions" o|--o| "kyron.action_executions" : "previous / next"
     "patients.patient" ||--o{ "patients.patient_practice" : "registrations"
     "providers.practice" ||--o{ "patients.patient_practice" : "patients"
     "providers.practice" ||--o{ "kyron.conversation_record" : "practice calls"
@@ -94,12 +110,15 @@ erDiagram
     "insurance.patient_insurance" ||--o{ "insurance.claims" : "billed coverage"
     "clinical.prescription" ||--o{ "insurance.prior_authorization" : "authorization requests"
     "insurance.patient_insurance" ||--o{ "insurance.prior_authorization" : "reviewed coverage"
-    "kyron.actions" o|--o{ "insurance.prior_authorization" : "initiates"
+    "kyron.action_executions" o|--o{ "insurance.prior_authorization" : "initiates"
     "patients.patient_practice" o|--o{ "kyron.conversation_record" : "call context"
     "clinical.prescription" o|--o{ "kyron.conversation_record" : "discussed in"
+    "patients.patient" o|--o{ "kyron.conversation_record" : "patient"
+    "providers.provider" o|--o{ "kyron.conversation_record" : "prescriber"
+    "providers.provider_practice" o|--o{ "kyron.conversation_record" : "prescriber affiliation"
 ```
 
-`||` = exactly one, `o|` = zero or one, and `o{` = zero or many. `simulation.conversation` stores linked source calls; each replay creates runtime records in `kyron`.
+`||` = exactly one, `o|` = zero or one, and `o{` = zero or many. `simulation.conversation` stores model context; each generated call creates runtime records in `kyron`.
 
 ### Reading the schema definitions
 
@@ -107,13 +126,16 @@ erDiagram
 
 ### `kyron` schema
 
-Stores calls, individual speaking turns, one analysis per call, and agent actions. Every call belongs to a practice through required `practice_id` (FK → `providers.practice.practice_id`). `patient_practice_id` and `prescription_id` are nullable until identified. When populated, the registration and prescription must belong to the conversation’s practice.
+Stores calls, individual speaking turns, one analysis per call, and agent actions. Calls also link directly to `patients.patient` and `providers.provider`, with `provider_practice_id` recording the prescriber’s practice affiliation. The server derives these links from the registration and prescription and rejects conflicting supplied IDs. Existing records are backfilled from their original links. Every call belongs to a practice through required `practice_id` (FK → `providers.practice.practice_id`). `patient_practice_id` and `prescription_id` are nullable until identified. When populated, the registration and prescription must belong to the conversation’s practice.
 
 ```mermaid
 erDiagram
     "kyron.conversation_record" {
         UUID id PK
         UUID source_conversation_id FK
+        UUID patient_id FK
+        UUID provider_id FK
+        UUID provider_practice_id FK
         UUID practice_id FK
         UUID patient_practice_id FK
         UUID prescription_id FK
@@ -127,7 +149,7 @@ erDiagram
         UUID analysis_id PK
         UUID conversation_record_id FK, UK
     }
-    "kyron.actions" {
+    "kyron.action_executions" {
         UUID action_id PK
         UUID analysis_id FK
         UUID transcript_id FK, UK
@@ -139,24 +161,33 @@ erDiagram
         UUID conversation_record_id FK
         INTEGER sequence
     }
+    "kyron.actions" ||--o{ "kyron.rule_actions" : "required action"
+    "kyron.rules" ||--o{ "kyron.rule_actions" : "checklist"
+    "kyron.workflows" ||--o{ "kyron.workflow_steps" : "graph"
+    "kyron.rules" ||--o{ "kyron.workflow_steps" : "node"
+    "kyron.workflows" ||--o{ "kyron.workflow_runs" : "executions"
+    "kyron.conversation_record" ||--o{ "kyron.workflow_runs" : "case context"
+    "kyron.actions" o|--o{ "kyron.action_executions" : "action definition"
     "kyron.conversation_record" ||--o{ "kyron.conversation_event" : "stream events"
+    "kyron.conversation_record" o|--o| "kyron.conversation_record" : "follow-up"
     "kyron.conversation_record" ||--o{ "kyron.conversation_transcript" : "turns"
     "kyron.conversation_record" ||--|| "kyron.conversation_analysis" : "analysis"
-    "kyron.conversation_analysis" ||--o{ "kyron.actions" : "actions"
-    "kyron.conversation_transcript" o|--o| "kyron.actions" : "turn action"
-    "kyron.actions" o|--o| "kyron.actions" : "previous / next"
+    "kyron.conversation_analysis" ||--o{ "kyron.action_executions" : "actions"
+    "kyron.conversation_analysis" ||--o{ "kyron.action_tasks" : "chosen plan"
+    "kyron.conversation_transcript" o|--o| "kyron.action_executions" : "turn action"
+    "kyron.action_executions" o|--o| "kyron.action_executions" : "previous / next"
 ```
 
 #### `kyron.conversation_record`
 
 | Type | Columns |
 | --- | --- |
-| `UUID` | `id` (PK)<br>`source_conversation_id` (FK)<br>`practice_id` (FK)<br>`patient_practice_id` (FK)<br>`prescription_id` (FK) |
+| `UUID` | `id` (PK)<br>`source_conversation_id` (FK)<br>`parent_conversation_id` (FK, UK)<br>`patient_id` (FK)<br>`provider_id` (FK)<br>`provider_practice_id` (FK)<br>`practice_id` (FK)<br>`patient_practice_id` (FK)<br>`prescription_id` (FK) |
 | `TIMESTAMPTZ` | `start_time`<br>`end_time` |
-| `TEXT` | `name`, `status` |
+| `TEXT` | `name`, `status`, `seed_fingerprint` |
 | `INTEGER` | `last_sequence` |
 
-`source_conversation_id` references `simulation.conversation.conversation_id`. `status` progresses from `live` to `ended` to `completed`; `last_sequence` enforces ordered events.
+`source_conversation_id` references `simulation.conversation.conversation_id`. `status` progresses from `live` to `ended` (analysis processing), then `completed`, `follow_up_pending` → `continued`, `needs_review`, or `failed`. `parent_conversation_id` is a nullable unique self foreign key connecting follow-up calls. `last_sequence` enforces ordered events.
 
 #### `kyron.conversation_transcript`
 
@@ -172,9 +203,11 @@ erDiagram
 | Type | Columns |
 | --- | --- |
 | `UUID` | `analysis_id` (PK)<br>`conversation_record_id` (FK, UK) |
-| `TEXT` | `overall_sentiment`<br>`reason_for_call` |
+| `TEXT` | `overall_sentiment`<br>`reason_for_call`<br>`summary`<br>`decision`<br>`model` |
+| `JSONB` | `actions_needed`<br>`next_action`<br>`metrics` |
+| `TIMESTAMPTZ` | `analyzed_at` |
 
-#### `kyron.actions`
+#### `kyron.action_executions`
 
 | Type | Columns |
 | --- | --- |
@@ -193,7 +226,7 @@ erDiagram
 
 This append-only event log drives browser SSE and restores the transcript after refresh. (`conversation_record_id`, `sequence`) is unique. Sequence 0 stores creation metadata; subsequent events start at 1. The global `id` is the SSE resume cursor.
 
-Create each conversation and its analysis together. `is_completed` defaults to false. Patient/prescription context, unfinished end times, and analysis results not yet assessed are nullable; `practice_id` is required. An action always belongs to an analysis; its transcript link is nullable for actions after the call. `conversation_transcript.action` and `actions.transcript_id` are reciprocal unique links. `previous_action` and `next_action` are nullable unique links to `actions.action_id`.
+Create each conversation and its analysis together. `is_completed` defaults to false. Patient/prescription context, unfinished end times, and analysis results not yet assessed are nullable; `practice_id` is required. An action execution always belongs to an analysis; its transcript link is nullable for actions after the call. `conversation_transcript.action` and `action_executions.transcript_id` are reciprocal unique links. `previous_action` and `next_action` are nullable unique links to `action_executions.action_id`.
 
 ### `patients` schema
 
@@ -404,11 +437,11 @@ erDiagram
 | `TIMESTAMPTZ` | `submitted_at`, `decided_at` |
 | `DATE` | `valid_from`, `valid_until` |
 
-Claim provider and encounter links, group numbers, coverage end dates, payer references, pending decision fields, and unknown amounts are nullable. `request_action_id` is a nullable link to `kyron.actions`. Amounts use `NUMERIC(12,2)` and `currency` stores the currency code. Each claim row contains the totals for one claim.
+Claim provider and encounter links, group numbers, coverage end dates, payer references, pending decision fields, and unknown amounts are nullable. `request_action_id` is a nullable link to `kyron.action_executions`. Amounts use `NUMERIC(12,2)` and `currency` stores the currency code. Each claim row contains the totals for one claim.
 
 ### `simulation` schema
 
-Stores complete source conversations for replay in a single table. The harness selects an unused conversation and sets `is_used` to true after replay completes.
+Stores context for local-model conversations. The worker selects an unused scenario and marks it used after generation and analysis. Follow-up calls are decided from saved analysis, not source transcript links.
 
 ```mermaid
 erDiagram
@@ -416,7 +449,7 @@ erDiagram
         UUID conversation_id PK
         TEXT name
         UUID next_conversation FK
-        JSONB transcript
+        JSONB context
         BOOLEAN is_used
     }
     "simulation.conversation" o|--o{ "simulation.conversation" : "next call"
@@ -428,10 +461,10 @@ erDiagram
 | --- | --- |
 | `UUID` | `conversation_id` (PK)<br>`next_conversation` (FK, nullable) |
 | `TEXT` | `name` |
-| `JSONB` | `transcript` |
+| `JSONB` | `context` |
 | `BOOLEAN` | `is_used` |
 
-`transcript` is a required JSON object containing `metadata` (practice, patient registration, and prescription links), ordered `turns` (speaker, text, pauses, word timing, and at most one action per turn), and `after_call_actions`. Links inside JSON are validated by the receiving server, not database foreign keys. `is_used` is required and defaults to false. `conversation_id` is the source ID; runtime calls have their own `kyron.conversation_record.id`. `next_conversation` references another `simulation.conversation.conversation_id`. Random selection excludes follow-up rows; replay follows the links until null and rejects cycles. Each completed call commits its used flag separately. The `name` identifies the scenario and call stage. See the [payload example](simulator/example_conversation.json) and [simulator setup](simulator/README.md).
+`context` contains metadata links, objective, counterpart role, situation, personality and scenario background. It contains no scripted speech. Existing source IDs and usage are preserved when migrating from `transcript`. Legacy `next_conversation` links only group scenario families in the picker; they do not schedule calls. Follow-up runtime calls reuse the source context and link through `kyron.conversation_record.parent_conversation_id`. See [local-model simulator](simulator/README.md).
 
 ### Data integrity
 
@@ -439,27 +472,102 @@ erDiagram
 - Action/transcript links must be reciprocal and belong to the same conversation. Previous/next action links must be reciprocal, remain within one analysis, and contain no self-links or cycles.
 - Create the conversation and its analysis in one transaction. Enforce cross-record consistency and reciprocal links with deferred database triggers.
 - End dates and times cannot precede their corresponding starts. Quantities, refill counts, and monetary amounts cannot be negative.
-- Replay exposes only information available at the simulated time; future insurer decisions remain in the simulator until they occur.
+- Counterpart prompts receive role-specific scenario facts. Professional visit claims are excluded from pharmacy claim evidence.
 
 
-## Part 4 — Build the Full-Stack Product
+## Part 4 — Full-stack product
 
-Health care often has rules based decisions and structured workflows. It is not uncommon to see something like this, especially in the insurance space. Therefore, here is how I am going to do this.
+The provider portal uses practice-scoped cookie authentication and shows patients, providers, conversations, and reusable workflow rules. Conversation rows open a modal containing metadata, live transcription, the action checklist and workflow path, and post-call evaluation.
 
-I will have a simulation package that runs the simulations. It will grab a random, unused conversation from the simulation table, and stream the data to the server in real time, and realisttically. 
-
-The server will have an endpoint for triggering this. It will also have an endpoint for resetting, which truncates the kyron conversation tables and resets all simulation conversations to unused. I will also have an endpoint to pick a specific simulation conversation. 
-
-The server will take this data and place it into conversation tables as it runs. One line at a time, it created the conversation record and transcript with potential actions or inactions. This information will be processed in the server, and streamed to the frontend via SSE for realtime updates.
-
-The client will have an api for the server. It will feature a dashboard of past conversations ordered by call date and time. I will also have an "auth" screen where I can log in as different providers for their practices. This should filter down the conversation logs by patients in that practice to show a kind of multitenancy.
-
-The dashboard will feature a table that shows the conversation history, but also any ongoing calls. Calls ongoing will be at the top of the table, as they should since they will technically be the most recent. I am going to have an additional view where its still ordered by date time, but any related conversations (any conversations with actions that are linked to another conversation) should be grouped together, with the first call being the row, and an expand to show the next call(s). Clicking on a row will bring up converation information in either a modal or drawer, im not sure yet. 
-
-Here is the part that's important. I need some kind of analysis of a conversation and the actions taken. I think after a call is completed, I will need to runs some analysis of it. I need to understand the goal, reasons, and next actions. The next actions will be from a predefined list of actions. I think what I'm going to do is im going to run the transcript through an LLM to evaluate this. It will extract the goal, reason, and next action. What it wont know, is some ground truth. I am modeling this as some predefined steps, and if the AI does not get that right, it should be flagged as a wrong case. Wrong cases will have some visual indicator in the row. Since this is just for the one workflow, I will only make this app work for this.
-
-I will use AI assisted coding for this because I only have 8 hours. Otherwise I would only be able to do the simulation and some server in time.
+The simulator selects an unused context scenario and alternates two local-model speakers. The assistant receives the task objective, reads relevant patient/provider records and the current workflow checklist, and records supported action results. After speech ends, the server analyzes the persisted transcript, commits the summary, sentiment, outstanding work and metrics, and reads that analysis to decide whether to stop or generate another linked call. Unresolved or invalid work remains visible for review.
 
 ## Simulator app
 
-The background Python app in [`simulator/`](simulator/README.md) waits for `POST /trigger`, locks a random unused starting conversation, creates the server conversation with metadata, and streams words and simulated actions in order. It then follows `next_conversation` links using specific-ID lookup. `GET /status` reports the active call and completed calls. It marks each source used only after the server acknowledges that call’s full replay.
+The background Python app in [`simulator/`](simulator/README.md) accepts authenticated triggers, reserves an unused context source, and streams generated speech word by word. Ollama runs Qwen3 4B locally. Follow-up calls are dispatched from saved analysis through `/continue`; legacy source links do not schedule calls. `GET /status` reports progress and failures. Each source is marked used after its generated call and analysis finish.
+
+## Demo seed data
+
+Run `python3 seed_data.py` from the repository root after `docker compose up --build -d`. With no `DATABASE_URL`, the script runs inside the Compose server. With `DATABASE_URL` set, it uses that database directly (install `server/requirements.txt` first).
+
+The dataset contains two practices, three providers (including the existing `taylor.demo` login), five patients, their registrations, conditions, allergies, encounters, prescriptions, insurance coverage, claims, and authorization records. Five scenario families retain their original three source IDs for compatibility; calls and follow-up participants are generated dynamically from context and saved analysis. Outcomes include approval, missing documentation, an expired prescription, formulary denial, and inactive coverage. Human turns include hesitations, corrections, brief interruptions, and different sentiments; AI turns are structured and explicit about administrative limits. Interruptions are sequential short turns, not overlapping audio.
+
+Seeding populates supporting records and simulation sample definitions only. It never creates Kyron conversation records, transcripts, analysis, events, or action executions. Reusable action/rule/workflow definitions are seeded; runtime records are created when you run a simulation. Existing conversation history and simulation usage flags are preserved; use **Clear simulated data** to remove old history and reset samples.
+
+- `python3 seed_data.py --write-fixtures`: regenerate checked-in JSON from `server/core/demo_data.py` and the stable-ID blueprint; no database required. Rebuild the images afterward.
+
+Re-running updates only deterministic demo fixture IDs and does not delete unrelated rows. Existing demo databases receive additive nullable columns and foreign keys. Simulation definitions are refreshed while usage flags remain intact. All identities and health histories are fictional; phone numbers use the 555-01xx range and email addresses use `example.com`. NPI stays null rather than inventing an identifier that could belong to a real provider; internal provider IDs and explicitly marked demo licenses identify these fixtures.
+
+
+## Prescription workflows, rules, and actions
+
+`kyron.actions` contains reusable, versioned action definitions. `kyron.rules` groups required actions into checklists through `kyron.rule_actions`. `kyron.workflows` connects those rules through `kyron.workflow_steps`, whose branches compare declared action return values. All actions in a checklist can occur in any order; every required action and result field must be present and valid before advancing. No `simulation.ground_truth` table is used.
+
+| Table | Key stored values |
+| --- | --- |
+| `kyron.actions` | `action_id`, `code`, `version`, `name`, `instructions`, `actor`, `timing`, `result_fields` JSONB |
+| `kyron.rules` | `rule_id`, `code`, `version`, `name`, `description` |
+| `kyron.rule_actions` | Composite PK/FKs: `rule_id`, `action_id`; every membership is required |
+| `kyron.workflows` | `workflow_id`, `code`, `version`, `name`, `description`, `entry_rule_id` FK |
+| `kyron.workflow_steps` | Composite PK/FKs: `workflow_id`, `rule_id`; `branches` JSONB |
+| `kyron.workflow_runs` | `run_id`, workflow/conversation/practice/current-rule FKs, `status`, `observations` JSONB, `completed_rules` JSONB, `created_at` |
+| `kyron.action_executions` | Existing replay action instances and their transcript/analysis links, plus optional `action_definition_id` FK |
+
+Existing runtime `kyron.actions` rows are migrated to `kyron.action_executions` with their references intact. Clear simulated data removes executions and workflow runs but preserves the action/rule/workflow catalog. Seed creates definitions only, never workflow runs or conversation history. Definitions are immutable by `(code, version)`; publish changed behavior under a new version and new IDs. Runs reference the exact definition version used for comparison.
+
+The seeded `new_prescription` workflow covers:
+
+1. Verify identity and permission, then check whether clinician escalation is needed.
+2. Confirm a valid prescriber-issued order. Missing/expired/unclear orders require a prescriber request and follow-up; the AI does not issue medication orders.
+3. Verify active pharmacy coverage and ask the pharmacy for the actual claim response.
+4. If PA is required, check for an existing case and obtain payer-specific requirements. Collect the required documents **and** obtain prescriber support before submission; those two checklist actions can happen in either order.
+5. Record the PA decision. Pending goes to follow-up, denied goes to prescriber review of appeal/exception options, and approved goes to pharmacy notification and a new claim check.
+6. A paid claim must still be followed by confirmation of stock/dispensing readiness and patient communication. Only `ready_and_patient_notified` is the successful terminal outcome. Other terminal outcomes explicitly describe waiting, missing permission, or clinician handoff; a fresh assessment can be started when new evidence arrives.
+
+Each observation stores the action, rule, execution status, returned data, evidence/reference, missing fields, invalid fields, and timestamp. Failed, blocked, skipped, or incomplete observations cannot satisfy a checklist. Later attempts append evidence rather than erasing earlier attempts; the latest observation for an action in the current rule determines readiness. A successfully completed check can return a negative result (for example, `status: denied`) and correctly choose the denial branch. This is distinct from the action itself failing to execute.
+
+Example checklist return for `collect_clinical_documentation`:
+
+```json
+{
+  "status": "missing",
+  "received_documents": ["current visit note"],
+  "missing_documents": ["prescriber supporting statement"]
+}
+```
+
+A branch stores `all: [{action, field, equals}]` plus exactly one of `next_rule` or `outcome`. All predicates must match; no JavaScript, SQL, or Python expressions are evaluated. Branch matching requires exactly one match. The workflow engine records and evaluates evidence; it does not call payers/pharmacies, independently verify external claims, prescribe, or infer that a task succeeded just because it was requested.
+
+Authenticated APIs under `/api/practices/{practice}`:
+
+- `GET /workflows` and `/workflows/{id}` expose stored definitions.
+- `POST /workflow-runs` with `workflow_id` and `conversation_id` creates a checklist run.
+- `GET /workflow-runs/{id}` returns current requirements, observations, and missing information.
+- `POST /workflow-runs/{id}/results` accepts `action_id`, `status` (`completed`, `failed`, `blocked`, `skipped`), `result`, and `evidence`.
+- `POST /workflow-runs/{id}/advance` checks the entire checklist and selects a branch. Missing/invalid results return 409.
+
+Runs are scoped to the authenticated practice and updates lock the run to prevent concurrent advancement. The frontend Actions/Evaluation tabs remain placeholders; these APIs provide the persistence and comparison foundation. Existing simulated action events remain incomplete unless an actual result is recorded separately; replay text is not proof of an external action.
+
+This is an administrative template, with requirements and deadlines supplied by the payer. The PA/coverage-decision and prescriber-supported exception distinction is informed by [CMS coverage determinations](https://www.cms.gov/medicare/appeals-grievances/prescription-drug/coverage-determinations) and [CMS exceptions](https://www.cms.gov/medicare/appeals-grievances/prescription-drug/exceptions), which describe Medicare Part D procedures; the dummy commercial plans do not inherit Medicare-specific deadlines or coverage rules.
+
+## Local-model conversations and analysis
+
+The Run simulation button uses Qwen3 4B through local Ollama. Compose downloads the model once into a persistent volume. Speakers alternate separate role prompts; the assistant begins with a greeting and an offer to help. The server supplies scoped record data and workflow checklists and validates reported results against transcript evidence.
+
+After speech ends, `POST /api/conversations/{id}/analyze` stores a short summary, sentiment, outstanding actions, proposed next contact and metrics in `kyron.conversation_analysis`. The server commits those fields before reading the row to decide whether to stop or continue. `/dispatch` starts a follow-up through the simulator only for a valid unresolved current action; a unique parent link prevents duplicate child calls. Four-call and per-call turn limits stop unresolved work for review.
+
+The conversation Actions tab shows the checklist, evidence, missing results and highlighted workflow path. Evaluation shows the stored analysis and metrics. Seed data contains context only. See [configuration, endpoints and limitations](simulator/README.md).
+
+
+### Conversation intake and action execution
+
+Initial calls follow `patient_intake` (identity, reason, proposed steps). Saved transcript analysis
+selects any applicable next workflow and records its rationale and sentiment. The test expectation
+of prescription fulfillment is evaluated separately from the model prompt.
+
+| Table | Main columns |
+| --- | --- |
+| `kyron.action_tasks` | task_id, analysis_id, kind, target, description, workflow_code, action_code, status, result |
+
+Each task belongs to one conversation analysis. Logs, notifications, and messages execute as local
+simulated operations with receipts. Call tasks start a follow-up conversation and record its ID.
+The Evaluation tab can rerun analysis without replaying the transcript or duplicating completed tasks.

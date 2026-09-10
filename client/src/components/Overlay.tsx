@@ -10,7 +10,7 @@ export type OverlayProps = {
   description?: string
   children: ReactNode
   footer?: ReactNode
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'screen'
   variant?: 'default' | 'muted'
 }
 export function Overlay({ open, onClose, onExited, title, description, children, footer, size = 'md', variant = 'default', kind, side = 'right' }: OverlayProps & { kind: 'modal' | 'drawer'; side?: 'left' | 'right' }) {

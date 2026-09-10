@@ -34,13 +34,13 @@ server/
 | `GET /` | Redirect to the React provider portal. |
 | `GET /health` | PostgreSQL connectivity check. |
 | `GET /docs` | Interactive OpenAPI documentation. |
-| `GET /api/simulations` | Five scenario starting points and their used flags. |
-| `POST /api/simulations/random` | Trigger one random unused scenario chain. |
-| `POST /api/simulations/{conversation_id}/run` | Trigger a specific unused call and its successors. |
-| `GET /api/simulations/status` | Current simulator state, active source, completed calls, or failure. |
+| `GET /api/practices/{practice}/simulations` | Five scenario starting points and their used flags. |
+| `POST /api/practices/{practice}/simulations/random` | Generate a call from a random unused scenario. |
+| `POST /api/practices/{practice}/simulations/{conversation_id}/run` | Generate a call from the chosen context scenario. |
+| `GET /api/practices/{practice}/simulations/status` | Current simulator state, active source, completed calls, or failure. |
 | `POST /api/conversations` | Receive metadata and create a runtime conversation and analysis. |
 | `POST /api/conversations/{id}/events` | Persist ordered word, turn, action, and completion events. |
-| `GET /api/events` | Stream persisted events to the browser using SSE. |
+| `GET /api/practices/{practice}/events` | Stream persisted events to the browser using SSE. |
 
 The simulator uses `SERVER_URL=http://server:8000/api`; the API forwards triggers to `http://simulator:8090`. Triggering returns `202`; another active replay returns `409`. Used specific calls return `409`. An exhausted random selection returns `409`.
 
@@ -56,9 +56,9 @@ The simulator uses `SERVER_URL=http://server:8000/api`; the API forwards trigger
 
 Each scenario has three source rows: patient request, insurer call, and patient callback. Insurer calls follow the supplied example's introduction, callback details, provider identification, patient/member verification, questions, and confirmation. Identifiers and decisions are fictional. No real calls, claims, or clinical decisions are performed.
 
-Source rows live in [data/conversations.json](data/conversations.json). Each has a stable `conversation_id`, `name`, JSONB `transcript`, and nullable `next_conversation` UUID. The latter is the canonical link, rather than a duplicate pointer embedded inside transcript JSON. Seed validation rejects missing links and cycles. `ground_truth` is retained only in the source payload and never sent to the browser.
+Source rows live in [data/conversations.json](data/conversations.json). Each has a stable `conversation_id`, `name`, JSONB `context`, and nullable `next_conversation` UUID. The legacy pointer groups the original scenario families for selection; generated follow-up calls use persisted analysis instead. Context includes objective, role and personality, with no scripted turns or ground-truth transcript. Seed validation checks context links.
 
-Startup creates the schemas and the tables needed by this replay slice, then inserts missing seed records. It preserves existing records and `is_used` flags, including across container rebuilds. Context models implement only the fields needed for this initial flow; the wider clinical and insurance tables in the root README remain outside this implementation. `create_all` bootstraps a fresh database; it is not a migration engine for older schemas.
+Startup creates the application schemas and seeds supporting records while preserving runtime history and `is_used` flags. An explicit upgrade renames simulation `transcript` to `context`, adds nullable analysis/parent fields and preserves existing IDs. These demo upgrades are not a general migration framework.
 
 ## Persistence and failure handling
 
@@ -119,3 +119,60 @@ PY
 For a server outside Compose, export these variables and set the simulator's `SERVER_TOKEN` to the same value as `SIMULATOR_TOKEN`. `CLIENT_URL` defaults to `http://localhost:5173` and allows that origin for cookie-authenticated POSTs. Without `JWT_SECRET`, a standalone server generates a process-local key, so restarts invalidate sessions.
 
 References: [FastAPI cookies](https://fastapi.tiangolo.com/advanced/response-cookies/) and [JWT validation](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/).
+
+### Demo controls
+
+Authenticated `POST /api/practices/{practice}/demo/seed` invokes `/workspace/seed_data.py` (180-second timeout). `POST .../demo/clear` atomically deletes all Kyron conversation/event/transcript/analysis/action-execution and workflow-run rows, nulls insurance authorization action references, and sets all simulation sources to unused. Both are global local-demo operations, require a valid practice session and allowed origin, and reserve the simulator through its internal maintenance endpoints to prevent concurrent replay. The UI labels clear's global scope. Simulator ingress remains internal to Compose.
+
+Workflow definitions and observation APIs are documented in the root [workflow design](../README.md#prescription-workflows-rules-and-actions). Clear preserves reusable actions, rules, and workflows.
+
+## Local-model lifecycle
+
+The simulator uses local Qwen3 4B via Ollama. Internal bearer-token endpoints are `POST /api/conversations/{id}/agent-context`, `/observations`, `/analyze`, `/dispatch`, and `/failed`. Analysis reads persisted transcript/observations, saves summary/sentiment/outstanding work/metrics, commits, and then decides continuation from the saved row. `/dispatch` starts the next call through simulator `/continue`. Calls preserve workflow checkpoints and use unique parent links for idempotency.
+
+`GET /api/practices/{practice}/conversations/{id}/actions` provides the workflow definition, observations, completed path and analysis, scoped to the authenticated practice. `conversation.finalized` SSE events carry the terminal or follow-up status. The legacy `replay.completed` event is retained for existing protocol clients; the model simulator never uses it to bypass analysis. See [simulator setup](../simulator/README.md).
+
+`POST /api/practices/{practice}/conversations/{id}/cancel` requires the matching practice session and an allowed origin. It accepts live calls (or retries against an already failed record), persists `failed` with `cancelled_by_user`, closes partial turns, then signals the simulator. Late transcript writes and observations are rejected. A late analysis response cannot overwrite a failed status. The endpoint preserves the stop even if the simulator is temporarily unavailable.
+
+### Debugging calls
+
+Follow both services with `docker compose logs -f --tail=200 server simulator`.
+Structured JSON events include conversation/source IDs, stage, speaker, turn index,
+retry attempt, HTTP request ID/status, timings, and model token counts when available.
+`conversation.ending` distinguishes `agent_end_call` from `turn_limit`.
+`speaker.response.rejected` identifies invalid/repeated speech and exhausted retries;
+`model.request.failed`, `analysis.failed`, and `simulation.failed` include exception
+classes and traceback frame locations. Analysis validation logs identify failing fields.
+
+`LOG_LEVEL` defaults to `INFO`. Set `LOG_LEVEL=DEBUG` in the top-level `.env` and
+recreate the services between calls with `docker compose up -d --no-deps --force-recreate server simulator`
+to include individual word-delivery requests and polling. Debug events contain operational
+metadata, not word content. Prompts, transcripts, patient records, credentials, HTTP bodies,
+and arbitrary exception messages are excluded. Stack frames and explicit validation reasons
+remain available. `X-Request-ID` connects a simulator HTTP request to its server logs and is
+returned in server responses. These logs diagnose new runs; they cannot reconstruct errors
+from earlier runs that only saved a generic failure.
+
+### Intake, routing, and simulated actions
+
+New initial calls use the `patient_intake` workflow: identity → reason → proposed next steps.
+After the call, analysis summarizes the transcript, assesses sentiment, recovers missing intake
+results from cited transcript turn indices (resolved to the original text), and independently selects a workflow from the catalog.
+The seeded prescription cases are expected to match `new_prescription`; that expectation is used
+only for the evaluation metric and is never sent to the analyzer.
+
+`kyron.action_tasks` stores each selected log, notification, message, or call, its status, and its
+simulated receipt. Analysis and plans commit before execution/continuation decisions. Local deliveries
+produce simulated receipts; they never send real messages. Calls are queued serially and link to the
+resulting conversation. Reanalysis reuses the same logical tasks and preserves completed deliveries.
+Required intake and existing call/turn safety limits can block a task, with the reason recorded.
+
+`POST /api/practices/{practice}/conversations/{id}/analyze` reruns analysis on an ended transcript with
+provider cookie authentication and origin checks, then processes the saved plan and dispatches any
+eligible follow-up. Live, empty, and cancelled conversations are rejected. The Evaluation tab exposes this
+operation; the Actions tab keeps polling while open, including after the original call finishes.
+
+The Ollama adapter inlines schema references and removes string-size/format constraints unsupported
+by its grammar compiler; Pydantic still validates the full output. Analysis has a larger output budget
+and at most three structured-output attempts. Invalid output remains an explicit failure, never a
+fabricated successful analysis.

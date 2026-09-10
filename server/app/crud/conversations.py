@@ -5,11 +5,12 @@ from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy import func, select, text
 
-from server.models.context import Patient, PatientPractice, Practice, Prescription
+from server.models.context import Patient, PatientPractice, Practice, Prescription, ProviderPractice, Provider
 from server.models.conversation import (
     Action, ConversationAnalysis, ConversationEvent, ConversationRecord, ConversationTranscript,
 )
 from server.models.simulation import SimulationConversation
+from server.models.workflow import ActionDefinition
 
 
 def require(condition, message, status=409):
@@ -29,7 +30,7 @@ def create_conversation(session, payload):
     require(practice is not None, "Practice not found", 404)
     source = session.get(SimulationConversation, payload.source_conversation_id)
     require(source is not None, "Source conversation not found", 404)
-    links = source.transcript["metadata"]
+    links = source.context["metadata"]
     for key in ("practice_id", "patient_practice_id", "prescription_id"):
         supplied = getattr(payload, key)
         expected = UUID(links[key]) if links.get(key) else None
@@ -46,15 +47,51 @@ def create_conversation(session, payload):
         require(prescription is not None, "Prescription not found", 404)
         require(prescription.patient_practice_id == payload.patient_practice_id,
                 "Prescription does not match the patient registration", 422)
+    affiliation = session.get(ProviderPractice, prescription.prescriber_provider_practice_id) if prescription else None
+    if affiliation is None and payload.provider_practice_id:
+        affiliation = session.get(ProviderPractice, payload.provider_practice_id)
+        require(affiliation is not None, "Provider affiliation not found", 404)
+    if affiliation:
+        require(affiliation.practice_id == practice.practice_id, "Provider belongs to another practice", 422)
+    derived = {"patient_id": patient.patient_id if patient else None,
+               "provider_id": affiliation.provider_id if affiliation else None,
+               "provider_practice_id": affiliation.provider_practice_id if affiliation else None}
+    for key, expected in derived.items():
+        supplied = getattr(payload, key)
+        require(supplied is None or supplied == expected, f"{key} does not match the linked records", 422)
+        require(not links.get(key) or UUID(links[key]) == expected, f"Source {key} does not match the linked records", 422)
+    runtime_name = source.name
+    if payload.parent_conversation_id:
+        parent = session.get(ConversationRecord,payload.parent_conversation_id)
+        require(parent is not None and parent.source_conversation_id == payload.source_conversation_id,
+                "Invalid parent conversation", 422)
+        analysis = session.scalar(select(ConversationAnalysis).where(ConversationAnalysis.conversation_record_id == parent.id))
+        require(analysis is not None and analysis.decision == 'continue', 'Parent has no continuation decision')
+        existing = session.scalar(select(ConversationRecord).where(ConversationRecord.parent_conversation_id == parent.id))
+        if existing: return existing
+        from server.app.services.agent import publish
+        runtime_name = f"{source.context['metadata'].get('scenario_name',source.name)} · {analysis.next_action['target'].replace('_',' ')} follow-up"
+        task_id=analysis.next_action.get('task_id')
+        if task_id:
+            from server.models.conversation import ActionTask
+            task=session.get(ActionTask,UUID(task_id))
+            if task: task.status='running'
+        parent.status = 'continued'
+        publish(session,parent,'conversation.finalized',status='continued')
     record = ConversationRecord(
-        **payload.model_dump(exclude={"name"}), name=source.name,
+        **payload.model_dump(exclude={"name", *derived}), **derived, name=runtime_name,
     )
     session.add(record)
     session.flush()
+    if payload.parent_conversation_id and analysis.next_action.get('task_id'):
+        task=session.get(ActionTask,UUID(analysis.next_action['task_id']))
+        if task: task.result={'simulated':True,'conversation_id':str(record.id)}
     session.add(ConversationAnalysis(conversation_record_id=record.id))
     metadata = {
-        **payload.model_dump(mode="json"), "id": str(record.id), "name": source.name,
+        **payload.model_dump(mode="json"), "id": str(record.id), "name": record.name,
         "practice_name": practice.name,
+        **{key: str(value) if value else None for key, value in derived.items()},
+        "provider_name": (lambda provider: f"{provider.first_name} {provider.last_name}")(session.get(Provider, affiliation.provider_id)) if affiliation else None,
         "patient_name": f"{patient.first_name} {patient.last_name}" if patient else None,
         "medication_name": prescription.medication_name if prescription else None,
         "scenario_name": links.get("scenario_name", source.name),
@@ -122,7 +159,8 @@ def append_event(session, conversation_id, event):
         analysis_id = session.scalar(select(ConversationAnalysis.analysis_id).where(
             ConversationAnalysis.conversation_record_id == conversation_id,
         ))
-        session.add(Action(action_id=event.action_id, analysis_id=analysis_id,
+        definition = session.scalar(select(ActionDefinition).where(ActionDefinition.code == event.action).order_by(ActionDefinition.version.desc()))
+        session.add(Action(action_id=event.action_id, action_definition_id=definition.action_id if definition else None, analysis_id=analysis_id,
                            transcript_id=transcript_id, action=event.action, reason=event.reason))
         if turn:
             turn.action = event.action_id
@@ -143,11 +181,12 @@ def append_event(session, conversation_id, event):
                                   sequence=event.sequence, data=data))
 
 
-def events_after(session, cursor, practice_id):
+def events_after(session, cursor, practice_id, conversation_id=None):
     rows = session.scalars(select(ConversationEvent).join(
         ConversationRecord, ConversationRecord.id == ConversationEvent.conversation_record_id,
     ).where(
         ConversationEvent.id > cursor,
         ConversationRecord.practice_id == practice_id,
+        *([ConversationRecord.id == conversation_id] if conversation_id else []),
     ).order_by(ConversationEvent.id).limit(500))
     return [{"id": row.id, "data": row.data} for row in rows]

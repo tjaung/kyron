@@ -4,6 +4,8 @@ WORKDIR /workspace
 COPY server/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 COPY server /workspace/server
+COPY simulator /workspace/simulator
+COPY seed_data.py /workspace/seed_data.py
 RUN useradd --create-home app
 USER app
 EXPOSE 8000

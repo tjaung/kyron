@@ -4,6 +4,9 @@ export type ConversationRecord = {
   status: string
   start_time: string
   end_time: string | null
+  patient_id: string | null
+  provider_id: string | null
+  provider_practice_id: string | null
   practice_id: string
   patient_practice_id: string | null
   prescription_id: string | null

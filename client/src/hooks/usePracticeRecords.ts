@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
+import { useDataRevision } from './useDataRevision'
 import { useAuth } from '../auth/useAuth'
 
 export function usePracticeRecords<Row>(resource: 'patients' | 'providers') {
   const { session } = useAuth()
+  const externalRevision = useDataRevision()
   const practice = session?.practice.slug
   const [offset, setOffset] = useState(0)
   const [revision, setRevision] = useState(0)
   const [result, setResult] = useState<{ key: string; items?: Row[]; total?: number; error?: string } | null>(null)
   const limit = 20
-  const key = `${practice}:${resource}:${offset}:${revision}`
+  const key = `${practice}:${resource}:${offset}:${revision}:${externalRevision}`
   const loading = result?.key !== key
   useEffect(() => {
     if (!practice) return

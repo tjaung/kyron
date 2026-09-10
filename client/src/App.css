@@ -35,3 +35,47 @@
 @media (max-width: 640px) { .practice-shell { padding: 28px 16px; } .profile-nav { gap: 8px; } .profile-label { display: none; } .app-brand span { display: none; } .profile-badge { padding: 4px; } }
 .practice-workspace { display: flex; flex: 1; min-width: 0; }
 .practice-workspace > .practice-shell { min-width: 0; }
+.simulation-controls { margin: 0 0 24px auto; max-width: 640px; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.simulation-run { display: flex; align-items: flex-end; gap: 12px; width: 100%; }
+.simulation-run .ui-field { flex: 1; min-width: 0; }
+.simulation-run > .ui-button { flex-shrink: 0; }
+.simulation-note { font-size: 12px; color: hsl(var(--muted-foreground)); text-align: right; }
+.navbar-message { flex-basis: 100%; text-align: right; font-size: 12px; color: hsl(var(--muted-foreground)); }
+@media (max-width: 640px) { .simulation-run { flex-wrap: wrap; } .simulation-run .ui-field { flex-basis: 100%; } .simulation-note { text-align: left; } .simulation-controls { align-items: flex-start; } }
+@media (max-width: 640px) {
+  .practice-page h1 { font-size: 22px; overflow-wrap: anywhere; }
+  .simulation-run > .ui-button { flex-shrink: 1; max-width: 100%; }
+  .simulation-controls > .ui-button { max-width: 100%; }
+  .ui-table-header, .ui-table-footer { padding-inline: 12px; }
+  .ui-table-header h2 { overflow-wrap: anywhere; }
+  .ui-table-actions { flex-wrap: wrap; }
+}
+.workflow-view { padding-top: 20px; }
+.decision-tree { border: 1px solid hsl(var(--border)); border-radius: var(--radius); overflow: hidden; background: hsl(var(--card)); }
+.tree-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px; border-bottom: 1px solid hsl(var(--border)); }
+.tree-toolbar p { font-size: 12px; color: hsl(var(--muted-foreground)); }
+.tree-toolbar > div { display: flex; align-items: center; gap: 10px; font-size: 12px; flex-wrap: wrap; }
+.tree-viewport { overflow: auto; max-height: 70dvh; background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px); background-size: 20px 20px; }
+.tree-canvas { position: relative; transform-origin: top left; }
+.tree-edges { position: absolute; inset: 0; overflow: visible; color: hsl(var(--muted-foreground)); }
+.tree-edges g > path { fill: none; stroke: currentColor; stroke-width: 1.5; opacity: .6; }
+.tree-edges text { fill: currentColor; font-size: 10px; paint-order: stroke; stroke: hsl(var(--card)); stroke-width: 4px; stroke-linejoin: round; }
+.tree-node { position: absolute; width: 220px; min-height: 100px; padding: 14px; display: flex; flex-direction: column; gap: 7px; text-align: left; background: hsl(var(--card)); color: hsl(var(--foreground)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); box-shadow: 0 2px 6px hsl(var(--foreground) / .05); }
+button.tree-node { cursor: pointer; transition: border-color 140ms, box-shadow 140ms; }
+button.tree-node:hover { border-color: hsl(var(--ring)); box-shadow: 0 4px 14px hsl(var(--foreground) / .12); }
+button.tree-node:active { background: hsl(var(--accent)); }
+.tree-node strong { font-size: 14px; }
+.tree-node > span:last-child { font-size: 11px; color: hsl(var(--muted-foreground)); }
+.tree-outcome { background: hsl(var(--muted)); box-shadow: none; border-style: dashed; }
+.rule-details h3, .rule-details h4 { margin: 0; }
+.rule-details > p, .rule-details .ui-card > p { font-size: 13px; line-height: 1.6; }
+.rule-details .ui-card { display: flex; flex-direction: column; gap: 12px; }
+.rule-action-meta { color: hsl(var(--muted-foreground)); text-transform: capitalize; }
+.rule-condition { overflow-wrap: anywhere; font-family: var(--mono); }
+@media (prefers-reduced-motion: reduce) { button.tree-node { transition: none; } }
+.tree-edges .tree-edge--taken path { stroke: #22a06b; stroke-width: 4; }
+.tree-node.tree-node--completed { border-color: #22a06b; box-shadow: 0 0 0 2px #22a06b44; }
+.tree-node.tree-node--current { border-color: #dbab09; box-shadow: 0 0 0 2px #dbab0944; }
+.conversation-actions { padding-bottom: 16px; }
+.conversation-actions .tree-viewport { max-height: 42dvh; }
+.conversation-actions td { overflow-wrap: anywhere; }

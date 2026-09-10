@@ -23,6 +23,7 @@ export type TableProps<Row> = {
   rowKey: (row: Row) => Key
   onRowClick?: (row: Row) => void
   rowLabel?: (row: Row) => string
+  rowActionColumn?: string
   header?: TableSection
   footer?: TableSection
   caption?: string
@@ -34,7 +35,7 @@ export type TableProps<Row> = {
 function Section({ data, titleId }: { data: TableSection; titleId?: string }) {
   return <><div>{data.title && <h2 id={titleId}>{data.title}</h2>}{data.subtitle && <p>{data.subtitle}</p>}{data.content}</div>{data.actions && <div className="ui-table-actions">{data.actions}</div>}</>
 }
-export function Table<Row>({ data, columns, rowKey, onRowClick, rowLabel, header, footer, caption = 'Records', loading = false, emptyMessage = 'No records yet.', className = '', variant = 'default' }: TableProps<Row>) {
+export function Table<Row>({ data, columns, rowKey, onRowClick, rowLabel, rowActionColumn, header, footer, caption = 'Records', loading = false, emptyMessage = 'No records yet.', className = '', variant = 'default' }: TableProps<Row>) {
   const titleId = useId()
   return <section className={`ui-table ui-table--${variant} ${className}`} aria-busy={loading}>
     {header && <header className="ui-table-header"><Section data={header} titleId={titleId} /></header>}
@@ -53,7 +54,7 @@ export function Table<Row>({ data, columns, rowKey, onRowClick, rowLabel, header
                   const value = typeof column.data === 'function' ? column.data(row) : row[column.data]
                   const content = typeof column.data === 'function' ? value as ReactNode : value == null ? '—' : String(value)
                   return <td key={column.id} className={column.className} style={{ ...column.style, textAlign: column.align }}>
-                    {index === 0 && onRowClick ? <button type="button" className="ui-table-row-button" aria-label={rowLabel?.(row)} onClick={() => onRowClick(row)}>{content}</button> : content}
+                    {(rowActionColumn ? column.id === rowActionColumn : index === 0) && onRowClick ? <button type="button" className="ui-table-row-button" aria-label={rowLabel?.(row)} onClick={() => onRowClick(row)}>{content}</button> : content}
                   </td>
                 })}
               </tr>)}

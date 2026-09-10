@@ -115,3 +115,21 @@ Authenticated routes are `/{practice}/conversations`, `/{practice}/patients`, an
 `Sidebar` in `components/` is controlled with `open`, `onOpenChange`, and `links: { label, to, icon }[]`. It expands in normal document flow, resizing the main content, and collapses to an accessible icon rail. The toggle exposes its expanded state and active links use `aria-current`. It starts collapsed on smaller screens; reduced-motion settings disable the width transition.
 
 The directory endpoints `GET /api/practices/{practice}/patients` and `/providers` accept `limit` (1–100) and `offset`. They require the practice cookie and query patient/provider practice memberships, returning `{ items, total }` with deterministic name ordering. Patient dates are displayed as date-only values to avoid timezone shifts.
+
+## Simulation controls
+
+The navbar **Seed data** button seeds supporting records and simulation samples, then refreshes the current table. It does not create recorded conversations; those appear only after **Run simulation**. Above the conversations table, choose an unused starting scenario or **Select random sample**, then **Run simulation**. The existing practice-scoped simulation endpoints replay its linked calls; the table refreshes during replay.
+
+**Clear simulated data** deletes all runtime conversation, action-execution, and workflow-run rows in `kyron` across all practices, clears authorization references to deleted actions, and resets every simulation source to unused. Patient, provider, clinical, and insurance records remain. Clear and seed reserve the simulator until complete; either returns a busy error during active replay. These are authenticated, origin-checked controls for the local demo, and their data operations affect all practices.
+
+Conversation rows open a `size="screen"` modal with Details, Transcript, Actions, and Evaluation tabs. Details and Transcript are connected; the other tabs are explicit placeholders. The transcript first loads an atomic snapshot from `GET /api/practices/{practice}/conversations/{id}`, then subscribes to `/events?conversation_id={id}&after={cursor}`. Event IDs resume the stream and per-call sequences prevent duplicate words. Completed records use the saved transcript. Closing the modal closes its stream; switching tabs preserves it. Scrolling up pauses automatic scrolling, and **Jump to latest** resumes it.
+
+## Rules browser and shared tabs
+
+`/{practice}/rules` loads the available workflow versions as tabs and draws their stored rule graph with labeled arrows and terminal outcomes. The graph scrolls in both directions and has zoom controls. Selecting a rule opens a registry drawer containing the full checklist, action instructions, actor/timing, expected return fields, and all branch conditions. Only persisted workflows appear; the current seed includes one workflow version.
+
+`Tabs` in `components/Tabs.tsx` accepts `items: { value, label, content, disabled? }[]`, controlled `value` / `onValueChange`, and an accessible `label`. It supports `underline` and `pills` variants, Arrow/Home/End keyboard navigation, and associated tab panels. Panels stay mounted by default; pass `keepMounted={false}` for lazy content. Both the Rules page and conversation modal import this component; changing conversation tabs preserves its live transcript connection.
+
+The conversation Actions tab polls the practice-scoped actions endpoint during a call. It renders the same decision-tree component with completed rules, the current rule, and only the branch conditions actually taken highlighted. Selecting a node shows that rule's checklist, evidence, return values and missing fields. Evaluation displays the saved summary, sentiment, continuation decision and metrics. Workflow observations carried from a parent call preserve the path across follow-ups.
+
+Live conversation modals include **Cancel simulation**. Cancellation preserves the partial transcript, marks the call failed, refreshes table/actions state, and removes the speaking indicator. Completed calls do not show the button.

@@ -1,5 +1,8 @@
 from uuid import UUID
 import random
+import logging
+import time
+from simulator.debug_logging import log
 
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
@@ -16,11 +19,17 @@ router = APIRouter(prefix="/simulations", tags=["simulations"])
 
 
 async def simulator_request(method, path, **kwargs):
+    started = time.monotonic()
+    level = logging.DEBUG if method == 'GET' else logging.INFO
+    log('simulator.request.started', level=level, endpoint=path)
     try:
         async with httpx.AsyncClient(timeout=10) as client:
-            response = await client.request(method, settings.simulator_url + path, **kwargs)
+            response = await client.request(method, settings.simulator_url + path, headers={"Authorization": "Bearer " + settings.simulator_token}, **kwargs)
     except httpx.RequestError as error:
+        log('simulator.request.failed', level=logging.ERROR, exc_info=True, endpoint=path)
         raise HTTPException(503, "Simulator is unavailable") from error
+    log('simulator.request.completed', level=logging.WARNING if response.is_error else level,
+        endpoint=path, status_code=response.status_code, duration_ms=round((time.monotonic()-started)*1000))
     if response.status_code == 409:
         raise HTTPException(409, "A simulation is already running")
     if response.is_error:
@@ -39,7 +48,7 @@ async def status(session: Session = Depends(get_session), auth: AuthSession = De
     source_id = state.get("source_conversation_id")
     if source_id:
         source = session.get(SimulationConversation, UUID(source_id))
-        if source is None or source.transcript["metadata"]["practice_id"] != str(auth.practice.practice_id):
+        if source is None or source.context["metadata"]["practice_id"] != str(auth.practice.practice_id):
             return {"status": "busy" if state["status"] == "running" else "idle"}
     return state
 
@@ -68,7 +77,7 @@ def validate_chain(session, source_id, practice_id):
             raise HTTPException(409, "Invalid conversation chain")
         visited.add(source_id)
         source = session.get(SimulationConversation, source_id)
-        if source is None or source.transcript["metadata"]["practice_id"] != str(practice_id):
+        if source is None or source.context["metadata"]["practice_id"] != str(practice_id):
             raise HTTPException(404, "Source conversation not found in this practice")
         if source.is_used:
             raise HTTPException(409, "Source conversation has already been used")

@@ -20,7 +20,7 @@ class Transaction:
     """Small transaction double, including rollback of an uncommitted used flag."""
 
     def __init__(self, payload):
-        self.source = {"conversation_id": uuid4(), "transcript": payload}
+        self.source = {"conversation_id": uuid4(), "transcript": payload, "context": payload, "name": "Test scenario"}
         self.used = False
         self.committed = False
         self.rolled_back = False
@@ -44,6 +44,19 @@ class Transaction:
 
 
 class SimulatorTests(unittest.TestCase):
+    def test_maintenance_blocks_triggers_and_resets_status(self):
+        simulator = Simulator(None)
+        self.assertTrue(simulator.begin_maintenance())
+        self.assertFalse(simulator.trigger())
+        self.assertFalse(simulator.begin_maintenance())
+        self.assertEqual(simulator.status()['status'], 'maintenance')
+        simulator.end_maintenance()
+        self.assertEqual(simulator.status()['status'], 'idle')
+        simulator.state = {'status': 'running'}
+        self.assertFalse(simulator.begin_maintenance())
+        simulator.end_maintenance()
+        self.assertEqual(simulator.status()['status'], 'running')
+
     def setUp(self):
         self.payload = json.loads(EXAMPLE.read_text())
         self.requests = []
@@ -119,12 +132,13 @@ class SimulatorTests(unittest.TestCase):
             turn.update(pause_before_ms=0, word_delay_ms=0)
         transaction = Transaction(self.payload)
         app = Simulator(self.client, lambda: transaction)
-        app.run(None)
+        with patch("simulator.main.generate_agent_conversation",return_value=self.runtime_id):
+            app.run(None)
         self.assertTrue(transaction.committed)
         self.assertTrue(transaction.used)
         self.assertEqual(app.status()["status"], "completed")
         app.run(None)
-        self.assertEqual(app.status()["status"], "empty")
+        self.assertEqual(app.status()["status"], "failed")
 
     def test_http_failure_rolls_back_and_does_not_emit_completion(self):
         self.fail_words = True
@@ -132,7 +146,8 @@ class SimulatorTests(unittest.TestCase):
             turn.update(pause_before_ms=0, word_delay_ms=0)
         transaction = Transaction(self.payload)
         app = Simulator(self.client, lambda: transaction)
-        app.run(None)
+        with patch("simulator.main.generate_agent_conversation",side_effect=ValueError("generation failed")):
+            app.run(None)
         self.assertTrue(transaction.rolled_back)
         self.assertFalse(transaction.used)
         self.assertEqual(app.status()["status"], "failed")
@@ -155,18 +170,18 @@ class SimulatorTests(unittest.TestCase):
         thread.start()
         base = f"http://127.0.0.1:{listener.server_port}"
         try:
-            with patch("simulator.main.generate_conversation", side_effect=replay):
-                with urlopen(Request(base + "/trigger", data=b"{}")) as response:
+            with patch.dict("os.environ", {"SERVER_TOKEN":"test-token"}), patch("simulator.main.generate_agent_conversation", side_effect=replay):
+                with urlopen(Request(base + "/trigger", data=b"{}", headers={"Authorization":"Bearer test-token"})) as response:
                     self.assertEqual(response.status, 202)
                 self.assertTrue(entered.wait(2))
                 with urlopen(base + "/status") as response:
                     self.assertEqual(json.load(response)["status"], "running")
                 with self.assertRaises(HTTPError) as error:
-                    urlopen(Request(base + "/trigger", data=b"{}"))
+                    urlopen(Request(base + "/trigger", data=b"{}", headers={"Authorization":"Bearer test-token"}))
                 self.assertEqual(error.exception.code, 409)
                 error.exception.close()
                 with self.assertRaises(HTTPError) as error:
-                    urlopen(Request(base + "/trigger", data=b'{"conversation_id":"invalid"}'))
+                    urlopen(Request(base + "/trigger", data=b'{"conversation_id":"invalid"}', headers={"Authorization":"Bearer test-token"}))
                 self.assertEqual(error.exception.code, 400)
                 error.exception.close()
                 release.set()
@@ -180,45 +195,15 @@ class SimulatorTests(unittest.TestCase):
             if app.worker:
                 app.worker.join(3)
 
-    def test_linked_conversations_commit_individually_in_order(self):
-        first, second = Transaction(self.payload), Transaction(self.payload)
-        first.source["next_conversation"] = second.source["conversation_id"]
-        connections = iter([first, second])
-        app = Simulator(self.client, lambda: next(connections))
-        with patch("simulator.main.generate_conversation", return_value=self.runtime_id) as replay:
+    def test_legacy_next_link_does_not_start_a_call(self):
+        first = Transaction(self.payload)
+        first.source['next_conversation'] = uuid4()
+        app = Simulator(self.client,lambda:first)
+        with patch('simulator.main.generate_agent_conversation',return_value=self.runtime_id) as generate:
             app.run(None)
-        self.assertEqual([call.args[0] for call in replay.call_args_list],
-                         [first.source["conversation_id"], second.source["conversation_id"]])
-        self.assertTrue(first.committed and second.committed)
-        self.assertTrue(first.used and second.used)
-        self.assertEqual(len(app.status()["completed_conversations"]), 2)
-
-    def test_failed_follow_up_preserves_completed_first_call(self):
-        first, second = Transaction(self.payload), Transaction(self.payload)
-        first.source["next_conversation"] = second.source["conversation_id"]
-        connections = iter([first, second])
-        app = Simulator(self.client, lambda: next(connections))
-        with patch("simulator.main.generate_conversation", side_effect=[self.runtime_id, ValueError("bad source")]):
-            app.run(None)
+        self.assertEqual(generate.call_count,1)
         self.assertTrue(first.used)
-        self.assertFalse(second.used)
-        self.assertTrue(second.rolled_back)
-        self.assertEqual(app.status()["status"], "failed")
-        self.assertEqual(len(app.status()["completed_conversations"]), 1)
-
-    def test_cycle_is_stopped(self):
-        first, second = Transaction(self.payload), Transaction(self.payload)
-        first.source["next_conversation"] = second.source["conversation_id"]
-        second.source["next_conversation"] = first.source["conversation_id"]
-        repeated = Transaction(self.payload)
-        repeated.source = first.source
-        connections = iter([first, second, repeated])
-        app = Simulator(self.client, lambda: next(connections))
-        with patch("simulator.main.generate_conversation", return_value=self.runtime_id) as replay:
-            app.run(None)
-        self.assertEqual(replay.call_count, 2)
-        self.assertEqual(app.status()["error"], "ValueError")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

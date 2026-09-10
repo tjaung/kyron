@@ -6,7 +6,11 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 class ConversationCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    parent_conversation_id: UUID | None = None
     practice_id: UUID
+    patient_id: UUID | None = None
+    provider_id: UUID | None = None
+    provider_practice_id: UUID | None = None
     patient_practice_id: UUID | None = None
     prescription_id: UUID | None = None
     source_conversation_id: UUID
@@ -70,6 +74,9 @@ class ConversationSummary(BaseModel):
     start_time: AwareDatetime
     end_time: AwareDatetime | None
     practice_id: UUID
+    patient_id: UUID | None = None
+    provider_id: UUID | None = None
+    provider_practice_id: UUID | None = None
     patient_practice_id: UUID | None
     prescription_id: UUID | None
 

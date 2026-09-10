@@ -1,6 +1,26 @@
 name: kyron
 
 services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/ollama"]
+    command: ["pull", "${OLLAMA_MODEL:-qwen3:4b}"]
+    depends_on:
+      ollama:
+        condition: service_healthy
+
   postgres:
     image: postgres:17-alpine
     environment:
@@ -25,6 +45,10 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
       SIMULATOR_TOKEN: ${SIMULATOR_TOKEN:?Set SIMULATOR_TOKEN in .env}
       CLIENT_URL: http://localhost:5173
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b}
+      MODEL_TIMEOUT_SECONDS: ${MODEL_TIMEOUT_SECONDS:-300}
     ports:
       - "127.0.0.1:${SERVER_PORT:-8000}:8000"
     depends_on:
@@ -45,7 +69,16 @@ services:
       DATABASE_URL: postgresql://kyron:kyron_dev@postgres:5432/kyron
       SERVER_URL: http://server:8000/api
       SERVER_TOKEN: ${SIMULATOR_TOKEN:?Set SIMULATOR_TOKEN in .env}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b}
+      MODEL_TIMEOUT_SECONDS: ${MODEL_TIMEOUT_SECONDS:-300}
+      SIMULATION_MAX_TURNS: ${SIMULATION_MAX_TURNS:-40}
+      SIMULATION_WORD_SECONDS: ${SIMULATION_WORD_SECONDS:-0.08}
+      SIMULATION_PAUSE_SECONDS: ${SIMULATION_PAUSE_SECONDS:-0.3}
     depends_on:
+      ollama-pull:
+        condition: service_completed_successfully
       server:
         condition: service_healthy
     healthcheck:
@@ -73,4 +106,5 @@ services:
       retries: 20
 
 volumes:
+  ollama_data:
   postgres_data:

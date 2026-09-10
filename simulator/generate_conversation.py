@@ -2,6 +2,8 @@
 
 from datetime import datetime, timezone
 import json
+import logging
+from .debug_logging import log
 import math
 import re
 import time
@@ -41,7 +43,7 @@ def validate_payload(payload):
         raise ValueError("Payload must contain a metadata object")
     metadata = payload["metadata"]
     UUID(str(metadata.get("practice_id")))
-    for key in ("patient_practice_id", "prescription_id"):
+    for key in ("patient_practice_id", "prescription_id", "patient_id", "provider_id", "provider_practice_id"):
         if metadata.get(key) is not None:
             UUID(str(metadata[key]))
     turns = payload.get("turns")
@@ -76,7 +78,13 @@ class ServerClient:
         self.timeout = timeout
 
     def post(self, path, payload):
-        headers = {"Content-Type": "application/json"}
+        started = time.monotonic()
+        request_id = str(uuid4())
+        level = logging.DEBUG if payload.get('type') == 'transcript.word' else logging.INFO
+        fields = {'request_id':request_id, 'endpoint':path, 'event_type':payload.get('type'),
+                  'sequence':payload.get('sequence')}
+        log('server.request.started', level=level, **fields)
+        headers = {"Content-Type": "application/json", "X-Request-ID":request_id}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         request = Request(
@@ -89,8 +97,15 @@ class ServerClient:
             with urlopen(request, timeout=self.timeout) as response:
                 body = response.read()
         except HTTPError as error:
+            log('server.request.rejected', level=logging.ERROR, status_code=error.code,
+                duration_ms=round((time.monotonic()-started)*1000), **fields)
             error.close()
             raise
+        except Exception:
+            log('server.request.failed', level=logging.ERROR, exc_info=True,
+                duration_ms=round((time.monotonic()-started)*1000), **fields)
+            raise
+        log('server.request.completed', level=level, duration_ms=round((time.monotonic()-started)*1000), **fields)
         return json.loads(body) if body else None
 
     def create_conversation(self, metadata):
@@ -107,7 +122,7 @@ def generate_conversation(source_id, payload, client, sleep=time.sleep, name=Non
     validate_payload(payload)
     metadata = {
         key: payload["metadata"].get(key)
-        for key in ("practice_id", "patient_practice_id", "prescription_id")
+        for key in ("practice_id", "patient_practice_id", "prescription_id", "patient_id", "provider_id", "provider_practice_id")
     }
     # Send only links and runtime metadata, never future transcript or ground truth.
     metadata.update(source_conversation_id=str(source_id), start_time=timestamp())
