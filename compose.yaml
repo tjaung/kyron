@@ -1,0 +1,110 @@
+name: kyron
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/ollama"]
+    command: ["pull", "${OLLAMA_MODEL:-qwen3:4b}"]
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: kyron
+      POSTGRES_USER: kyron
+      POSTGRES_PASSWORD: kyron_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kyron -d kyron"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://kyron:kyron_dev@postgres:5432/kyron
+      SIMULATOR_URL: http://simulator:8090
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      SIMULATOR_TOKEN: ${SIMULATOR_TOKEN:?Set SIMULATOR_TOKEN in .env}
+      CLIENT_URL: http://localhost:5173
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b}
+      MODEL_TIMEOUT_SECONDS: ${MODEL_TIMEOUT_SECONDS:-300}
+    ports:
+      - "127.0.0.1:${SERVER_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  simulator:
+    init: true
+    build:
+      context: .
+      dockerfile: simulator/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://kyron:kyron_dev@postgres:5432/kyron
+      SERVER_URL: http://server:8000/api
+      SERVER_TOKEN: ${SIMULATOR_TOKEN:?Set SIMULATOR_TOKEN in .env}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b}
+      MODEL_TIMEOUT_SECONDS: ${MODEL_TIMEOUT_SECONDS:-300}
+      SIMULATION_MAX_TURNS: ${SIMULATION_MAX_TURNS:-40}
+      SIMULATION_WORD_SECONDS: ${SIMULATION_WORD_SECONDS:-0.08}
+      SIMULATION_PAUSE_SECONDS: ${SIMULATION_PAUSE_SECONDS:-0.3}
+    depends_on:
+      ollama-pull:
+        condition: service_completed_successfully
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/status')"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    stop_grace_period: 120s
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    environment:
+      API_PROXY_TARGET: http://server:8000
+    ports:
+      - "127.0.0.1:5173:5173"
+    depends_on:
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5173').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  ollama_data:
+  postgres_data:

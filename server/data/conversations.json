@@ -1,0 +1,587 @@
+[
+  {
+    "conversation_id": "db1f1c10-6399-5cc8-9c0d-5f4516a81a8b",
+    "name": "Routine refill \u2014 authorization approved \u00b7 1. Patient prescription inquiry",
+    "next_conversation": "171c7cf1-0df7-551f-9357-534cd8eee219",
+    "context": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_id": "40e59989-2cad-56d8-8d5c-746215f2c840",
+        "patient_practice_id": "9024db8c-fb80-57e2-93fc-2de4a634a2ad",
+        "provider_id": "ecd07edd-2242-5a88-9f66-dabc9c8eb51d",
+        "provider_practice_id": "6a10e6d2-413d-57c0-b166-de5cf75e4b16",
+        "prescription_id": "6da9e49b-9a61-5fba-8f08-1e20b105d5e4",
+        "scenario_name": "Routine refill \u2014 authorization approved",
+        "encounter_id": "ec059314-c365-5ffa-b303-0dea887e4714",
+        "insurance_id": "8816e284-ecb4-5716-8257-4cb7b14ad08c"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "patient",
+      "situation": "Atorvastatin prescription status",
+      "personality": "Friendly, conversational, occasionally corrects a detail.",
+      "scenario_outcome": "approved",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-db1f1c10",
+          "claim_status": "paid",
+          "claim_reason": "none",
+          "fill_status": "ready",
+          "patient_cost": "$12.50",
+          "pickup_or_delivery": "Ready for pickup during regular pharmacy hours"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "171c7cf1-0df7-551f-9357-534cd8eee219",
+    "name": "Routine refill \u2014 authorization approved \u00b7 2. Insurance status check",
+    "next_conversation": "4d7ae763-4c35-5978-a919-8249686a5236",
+    "context": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_id": "40e59989-2cad-56d8-8d5c-746215f2c840",
+        "patient_practice_id": "9024db8c-fb80-57e2-93fc-2de4a634a2ad",
+        "provider_id": "ecd07edd-2242-5a88-9f66-dabc9c8eb51d",
+        "provider_practice_id": "6a10e6d2-413d-57c0-b166-de5cf75e4b16",
+        "prescription_id": "6da9e49b-9a61-5fba-8f08-1e20b105d5e4",
+        "scenario_name": "Routine refill \u2014 authorization approved",
+        "encounter_id": "ec059314-c365-5ffa-b303-0dea887e4714",
+        "insurance_id": "8816e284-ecb4-5716-8257-4cb7b14ad08c"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "insurance_agent",
+      "situation": "Atorvastatin prescription status",
+      "personality": "Matter-of-fact; answer briefly and request clarification when needed.",
+      "scenario_outcome": "approved",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-171c7cf1",
+          "claim_status": "paid",
+          "claim_reason": "none",
+          "fill_status": "ready",
+          "patient_cost": "$12.50",
+          "pickup_or_delivery": "Ready for pickup during regular pharmacy hours"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "4d7ae763-4c35-5978-a919-8249686a5236",
+    "name": "Routine refill \u2014 authorization approved \u00b7 3. Patient status callback",
+    "next_conversation": null,
+    "context": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_id": "40e59989-2cad-56d8-8d5c-746215f2c840",
+        "patient_practice_id": "9024db8c-fb80-57e2-93fc-2de4a634a2ad",
+        "provider_id": "ecd07edd-2242-5a88-9f66-dabc9c8eb51d",
+        "provider_practice_id": "6a10e6d2-413d-57c0-b166-de5cf75e4b16",
+        "prescription_id": "6da9e49b-9a61-5fba-8f08-1e20b105d5e4",
+        "scenario_name": "Routine refill \u2014 authorization approved",
+        "encounter_id": "ec059314-c365-5ffa-b303-0dea887e4714",
+        "insurance_id": "8816e284-ecb4-5716-8257-4cb7b14ad08c"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "patient",
+      "situation": "Atorvastatin prescription status",
+      "personality": "Friendly, conversational, occasionally corrects a detail.",
+      "scenario_outcome": "approved",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-4d7ae763",
+          "claim_status": "paid",
+          "claim_reason": "none",
+          "fill_status": "ready",
+          "patient_cost": "$12.50",
+          "pickup_or_delivery": "Ready for pickup during regular pharmacy hours"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "c39607bd-6178-5487-8333-f5f37e597bd8",
+    "name": "Missing records \u2014 authorization pending \u00b7 1. Patient prescription inquiry",
+    "next_conversation": "ac7e9bd0-f8ea-5394-a8b2-49a172dae084",
+    "context": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_id": "0c811784-a275-5684-9a77-71dfe8c13171",
+        "patient_practice_id": "4d8fdf09-a4b0-5082-9b67-ea5825692448",
+        "provider_id": "ecd07edd-2242-5a88-9f66-dabc9c8eb51d",
+        "provider_practice_id": "6a10e6d2-413d-57c0-b166-de5cf75e4b16",
+        "prescription_id": "316bd9c3-3fca-53d5-9fdd-0fd59e7e03df",
+        "scenario_name": "Missing records \u2014 authorization pending",
+        "encounter_id": "25e8045a-b6ed-55b7-a857-7c35c82a248c",
+        "insurance_id": "ddf70b36-5f20-5c1f-93c0-fa2eeaa3c669"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "patient",
+      "situation": "Adalimumab prescription status",
+      "personality": "Frustrated about the delay; asks concrete questions and sometimes interrupts.",
+      "scenario_outcome": "pending",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-c39607bd",
+          "claim_status": "rejected",
+          "claim_reason": "prior_authorization",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "ac7e9bd0-f8ea-5394-a8b2-49a172dae084",
+    "name": "Missing records \u2014 authorization pending \u00b7 2. Insurance status check",
+    "next_conversation": "00199828-e58d-540a-bdab-e5fe27a6ce9c",
+    "context": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_id": "0c811784-a275-5684-9a77-71dfe8c13171",
+        "patient_practice_id": "4d8fdf09-a4b0-5082-9b67-ea5825692448",
+        "provider_id": "ecd07edd-2242-5a88-9f66-dabc9c8eb51d",
+        "provider_practice_id": "6a10e6d2-413d-57c0-b166-de5cf75e4b16",
+        "prescription_id": "316bd9c3-3fca-53d5-9fdd-0fd59e7e03df",
+        "scenario_name": "Missing records \u2014 authorization pending",
+        "encounter_id": "25e8045a-b6ed-55b7-a857-7c35c82a248c",
+        "insurance_id": "ddf70b36-5f20-5c1f-93c0-fa2eeaa3c669"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "insurance_agent",
+      "situation": "Adalimumab prescription status",
+      "personality": "Matter-of-fact; answer briefly and request clarification when needed.",
+      "scenario_outcome": "pending",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-ac7e9bd0",
+          "claim_status": "rejected",
+          "claim_reason": "prior_authorization",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "00199828-e58d-540a-bdab-e5fe27a6ce9c",
+    "name": "Missing records \u2014 authorization pending \u00b7 3. Patient status callback",
+    "next_conversation": null,
+    "context": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_id": "0c811784-a275-5684-9a77-71dfe8c13171",
+        "patient_practice_id": "4d8fdf09-a4b0-5082-9b67-ea5825692448",
+        "provider_id": "ecd07edd-2242-5a88-9f66-dabc9c8eb51d",
+        "provider_practice_id": "6a10e6d2-413d-57c0-b166-de5cf75e4b16",
+        "prescription_id": "316bd9c3-3fca-53d5-9fdd-0fd59e7e03df",
+        "scenario_name": "Missing records \u2014 authorization pending",
+        "encounter_id": "25e8045a-b6ed-55b7-a857-7c35c82a248c",
+        "insurance_id": "ddf70b36-5f20-5c1f-93c0-fa2eeaa3c669"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "patient",
+      "situation": "Adalimumab prescription status",
+      "personality": "Frustrated about the delay; asks concrete questions and sometimes interrupts.",
+      "scenario_outcome": "pending",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-00199828",
+          "claim_status": "rejected",
+          "claim_reason": "prior_authorization",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "f3eeeb31-79c4-5ccf-8198-6f9fb6185910",
+    "name": "Expired prescription \u2014 renewal needed \u00b7 1. Patient prescription inquiry",
+    "next_conversation": "214719d9-b2fc-5487-8f8a-729b6a71fa9f",
+    "context": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_id": "85370ed3-488b-5c9e-80b7-220d9f8c9c29",
+        "patient_practice_id": "d6ebd2d2-2a33-5da9-841f-e05211e89407",
+        "provider_id": "151028ee-c5c3-5e17-9895-7ef34a53435d",
+        "provider_practice_id": "6889f572-70bb-5556-b3aa-fe346985b73e",
+        "prescription_id": "23ca8c1f-0539-5f5c-bf8f-8df09e59ae97",
+        "scenario_name": "Expired prescription \u2014 renewal needed",
+        "encounter_id": "0f00b0f6-d671-5428-b01b-168eedb1801a",
+        "insurance_id": "322480b7-bb38-57de-9a23-0baf379996c8"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "patient",
+      "situation": "Levothyroxine prescription status",
+      "personality": "Matter-of-fact; answer briefly and request clarification when needed.",
+      "scenario_outcome": "not_required",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-f3eeeb31",
+          "claim_status": "rejected",
+          "claim_reason": "expired prescription",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "214719d9-b2fc-5487-8f8a-729b6a71fa9f",
+    "name": "Expired prescription \u2014 renewal needed \u00b7 2. Insurance status check",
+    "next_conversation": "3e153f05-1692-5982-95a9-9cbd9c53b62d",
+    "context": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_id": "85370ed3-488b-5c9e-80b7-220d9f8c9c29",
+        "patient_practice_id": "d6ebd2d2-2a33-5da9-841f-e05211e89407",
+        "provider_id": "151028ee-c5c3-5e17-9895-7ef34a53435d",
+        "provider_practice_id": "6889f572-70bb-5556-b3aa-fe346985b73e",
+        "prescription_id": "23ca8c1f-0539-5f5c-bf8f-8df09e59ae97",
+        "scenario_name": "Expired prescription \u2014 renewal needed",
+        "encounter_id": "0f00b0f6-d671-5428-b01b-168eedb1801a",
+        "insurance_id": "322480b7-bb38-57de-9a23-0baf379996c8"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "insurance_agent",
+      "situation": "Levothyroxine prescription status",
+      "personality": "Matter-of-fact; answer briefly and request clarification when needed.",
+      "scenario_outcome": "not_required",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-214719d9",
+          "claim_status": "rejected",
+          "claim_reason": "expired prescription",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "3e153f05-1692-5982-95a9-9cbd9c53b62d",
+    "name": "Expired prescription \u2014 renewal needed \u00b7 3. Patient status callback",
+    "next_conversation": null,
+    "context": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_id": "85370ed3-488b-5c9e-80b7-220d9f8c9c29",
+        "patient_practice_id": "d6ebd2d2-2a33-5da9-841f-e05211e89407",
+        "provider_id": "151028ee-c5c3-5e17-9895-7ef34a53435d",
+        "provider_practice_id": "6889f572-70bb-5556-b3aa-fe346985b73e",
+        "prescription_id": "23ca8c1f-0539-5f5c-bf8f-8df09e59ae97",
+        "scenario_name": "Expired prescription \u2014 renewal needed",
+        "encounter_id": "0f00b0f6-d671-5428-b01b-168eedb1801a",
+        "insurance_id": "322480b7-bb38-57de-9a23-0baf379996c8"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "patient",
+      "situation": "Levothyroxine prescription status",
+      "personality": "Matter-of-fact; answer briefly and request clarification when needed.",
+      "scenario_outcome": "not_required",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-3e153f05",
+          "claim_status": "rejected",
+          "claim_reason": "expired prescription",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "c54f332c-c47f-589e-8516-6a55c894542d",
+    "name": "Formulary denial \u2014 prescriber review \u00b7 1. Patient prescription inquiry",
+    "next_conversation": "a994d68b-7f3a-5ff0-8e9c-a9d793e6966d",
+    "context": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_id": "3ea0de00-7dde-5a50-8481-44eaa46654b2",
+        "patient_practice_id": "474ce4c9-4a65-5008-b7d7-00fa4240be6f",
+        "provider_id": "151028ee-c5c3-5e17-9895-7ef34a53435d",
+        "provider_practice_id": "6889f572-70bb-5556-b3aa-fe346985b73e",
+        "prescription_id": "d5395083-f89c-5eab-ba5d-e27a5bfebbd3",
+        "scenario_name": "Formulary denial \u2014 prescriber review",
+        "encounter_id": "26caa00d-1af2-5e27-b527-799ee9a78a4b",
+        "insurance_id": "12a6397e-7aea-5982-ba66-08c894e2b75b"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "patient",
+      "situation": "Budesonide-formoterol prescription status",
+      "personality": "Frustrated about the delay; asks concrete questions and sometimes interrupts.",
+      "scenario_outcome": "denied",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-c54f332c",
+          "claim_status": "rejected",
+          "claim_reason": "non_formulary",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "a994d68b-7f3a-5ff0-8e9c-a9d793e6966d",
+    "name": "Formulary denial \u2014 prescriber review \u00b7 2. Insurance status check",
+    "next_conversation": "2531b42e-f8e3-5615-a267-55110662a029",
+    "context": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_id": "3ea0de00-7dde-5a50-8481-44eaa46654b2",
+        "patient_practice_id": "474ce4c9-4a65-5008-b7d7-00fa4240be6f",
+        "provider_id": "151028ee-c5c3-5e17-9895-7ef34a53435d",
+        "provider_practice_id": "6889f572-70bb-5556-b3aa-fe346985b73e",
+        "prescription_id": "d5395083-f89c-5eab-ba5d-e27a5bfebbd3",
+        "scenario_name": "Formulary denial \u2014 prescriber review",
+        "encounter_id": "26caa00d-1af2-5e27-b527-799ee9a78a4b",
+        "insurance_id": "12a6397e-7aea-5982-ba66-08c894e2b75b"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "insurance_agent",
+      "situation": "Budesonide-formoterol prescription status",
+      "personality": "Matter-of-fact; answer briefly and request clarification when needed.",
+      "scenario_outcome": "denied",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-a994d68b",
+          "claim_status": "rejected",
+          "claim_reason": "non_formulary",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "2531b42e-f8e3-5615-a267-55110662a029",
+    "name": "Formulary denial \u2014 prescriber review \u00b7 3. Patient status callback",
+    "next_conversation": null,
+    "context": {
+      "metadata": {
+        "practice_id": "946ea611-0950-57da-9b92-9062b0680d97",
+        "patient_id": "3ea0de00-7dde-5a50-8481-44eaa46654b2",
+        "patient_practice_id": "474ce4c9-4a65-5008-b7d7-00fa4240be6f",
+        "provider_id": "151028ee-c5c3-5e17-9895-7ef34a53435d",
+        "provider_practice_id": "6889f572-70bb-5556-b3aa-fe346985b73e",
+        "prescription_id": "d5395083-f89c-5eab-ba5d-e27a5bfebbd3",
+        "scenario_name": "Formulary denial \u2014 prescriber review",
+        "encounter_id": "26caa00d-1af2-5e27-b527-799ee9a78a4b",
+        "insurance_id": "12a6397e-7aea-5982-ba66-08c894e2b75b"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "patient",
+      "situation": "Budesonide-formoterol prescription status",
+      "personality": "Frustrated about the delay; asks concrete questions and sometimes interrupts.",
+      "scenario_outcome": "denied",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-2531b42e",
+          "claim_status": "rejected",
+          "claim_reason": "non_formulary",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "89f7b7f0-c7dd-54b7-8386-f0d5ac85fe99",
+    "name": "Inactive coverage \u2014 insurance update \u00b7 1. Patient prescription inquiry",
+    "next_conversation": "2a5004ea-38ee-5722-8974-7623655c24cb",
+    "context": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_id": "c97ac356-b966-5fc7-ada9-8671d4424449",
+        "patient_practice_id": "9a7a1140-22a0-57c6-a974-e3eab3529d76",
+        "provider_id": "ecd07edd-2242-5a88-9f66-dabc9c8eb51d",
+        "provider_practice_id": "6a10e6d2-413d-57c0-b166-de5cf75e4b16",
+        "prescription_id": "7029a7f0-72be-5929-990b-fd62cb343bdc",
+        "scenario_name": "Inactive coverage \u2014 insurance update",
+        "encounter_id": "ad66d6a9-b565-5fd5-ad00-b09aebe09ca7",
+        "insurance_id": "f06913df-88a7-5df9-b1dc-1fc96214bc77"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "patient",
+      "situation": "Semaglutide prescription status",
+      "personality": "Natural and conversational.",
+      "scenario_outcome": "coverage_inactive",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-89f7b7f0",
+          "claim_status": "rejected",
+          "claim_reason": "inactive coverage",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "2a5004ea-38ee-5722-8974-7623655c24cb",
+    "name": "Inactive coverage \u2014 insurance update \u00b7 2. Insurance status check",
+    "next_conversation": "59d499c4-e79f-50ae-ab44-9079a82ddc10",
+    "context": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_id": "c97ac356-b966-5fc7-ada9-8671d4424449",
+        "patient_practice_id": "9a7a1140-22a0-57c6-a974-e3eab3529d76",
+        "provider_id": "ecd07edd-2242-5a88-9f66-dabc9c8eb51d",
+        "provider_practice_id": "6a10e6d2-413d-57c0-b166-de5cf75e4b16",
+        "prescription_id": "7029a7f0-72be-5929-990b-fd62cb343bdc",
+        "scenario_name": "Inactive coverage \u2014 insurance update",
+        "encounter_id": "ad66d6a9-b565-5fd5-ad00-b09aebe09ca7",
+        "insurance_id": "f06913df-88a7-5df9-b1dc-1fc96214bc77"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "insurance_agent",
+      "situation": "Semaglutide prescription status",
+      "personality": "Matter-of-fact; answer briefly and request clarification when needed.",
+      "scenario_outcome": "coverage_inactive",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-2a5004ea",
+          "claim_status": "rejected",
+          "claim_reason": "inactive coverage",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  },
+  {
+    "conversation_id": "59d499c4-e79f-50ae-ab44-9079a82ddc10",
+    "name": "Inactive coverage \u2014 insurance update \u00b7 3. Patient status callback",
+    "next_conversation": null,
+    "context": {
+      "metadata": {
+        "practice_id": "45b53938-92e7-5e53-b36a-b9b15c503c9a",
+        "patient_id": "c97ac356-b966-5fc7-ada9-8671d4424449",
+        "patient_practice_id": "9a7a1140-22a0-57c6-a974-e3eab3529d76",
+        "provider_id": "ecd07edd-2242-5a88-9f66-dabc9c8eb51d",
+        "provider_practice_id": "6a10e6d2-413d-57c0-b166-de5cf75e4b16",
+        "prescription_id": "7029a7f0-72be-5929-990b-fd62cb343bdc",
+        "scenario_name": "Inactive coverage \u2014 insurance update",
+        "encounter_id": "ad66d6a9-b565-5fd5-ad00-b09aebe09ca7",
+        "insurance_id": "f06913df-88a7-5df9-b1dc-1fc96214bc77"
+      },
+      "objective": "Help the caller resolve the linked prescription request using the new-prescription workflow. Confirm facts, obtain missing information, and arrange the appropriate next contact.",
+      "counterpart": "patient",
+      "situation": "Semaglutide prescription status",
+      "personality": "Natural and conversational.",
+      "scenario_outcome": "coverage_inactive",
+      "counterpart_facts": {
+        "pharmacy": {
+          "reference": "SIM-PHARM-59d499c4",
+          "claim_status": "rejected",
+          "claim_reason": "inactive coverage",
+          "fill_status": "delayed",
+          "patient_cost": "Not yet known",
+          "pickup_or_delivery": "Not ready for pickup"
+        },
+        "patient": {
+          "contact_permission": true,
+          "reported_urgent_symptoms": false,
+          "request": "Help me resolve the prescription delay."
+        }
+      },
+      "instructions": "Only report facts available in the linked records. Do not invent receipts, approvals, costs, documents, or a completed prescription. Unknown facts remain unknown."
+    }
+  }
+]
