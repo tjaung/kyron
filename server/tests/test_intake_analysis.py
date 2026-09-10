@@ -165,3 +165,15 @@ class IntakeAnalysisTests(IngestionTests):
         self.assertEqual(response.status_code,200,response.text)
         self.assertEqual(run.status,'intake_complete');self.assertEqual(len(run.completed_rules),3)
         self.assertEqual(response.json()['decision'],'continue')
+
+    def test_turn_indices_resolve_original_evidence_instead_of_model_paraphrases(self):
+        conversation,base,lines=self.prepare_intake();output=self.output(lines)
+        for name,index in [('identity',0),('reason',1),('plan',2)]:
+            output['intake'][name+'_turn_index']=index
+            output['intake'][name+'_evidence']='A paraphrase that is not an exact quote.'
+        with patch('server.app.api.agent.LocalModel.generate',return_value=output):
+            response=self.client.post(base+'/analyze',json={})
+        self.assertEqual(response.status_code,200,response.text)
+        run=self.session.scalar(select(WorkflowRun).where(WorkflowRun.conversation_id==UUID(conversation)))
+        self.assertEqual(run.status,'intake_complete')
+        self.assertEqual([row['evidence'] for row in run.observations],[line[1] for line in lines])
